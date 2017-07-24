@@ -1,21 +1,21 @@
 # Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon
 
-A simple Linux python script to query arbitrary Mi Flora plant sensor devices and send the data to an **MQTT** server,
+A simple Linux python script to query arbitrary Mi Flora plant sensor devices and send the data to an **MQTT** broker,
 e.g., the famous [Eclipse Mosquitto](https://projects.eclipse.org/projects/technology.mosquitto) or the embedded MQTT broker in [Home Assistant](https://home-assistant.io). After data made the hop to the MQTT broker it can be used by home automation software like Home Assistant or [openHAB](https://openhab.org).
 
 ![Demo gif for command line execution](demo.gif)
 
-The program can be executed in **daemon mode** to run continuously in the background.
+The program can be executed for a single run or in **daemon mode** to run continuously in the background.
 
 ### Features
 
-* Support for [Xiaomi Mi Flora sensors](https://www.aliexpress.com/item/Newest-Original-Xiaomi-Flora-Monitor-Digital-Plants-Flowers-Soil-Water-Light-Tester-Sensor-Monitor-for-Aquarium/32685750372.html) (tested with firmware v2.6.2, v2.6.4, v2.6.6)
+* Support for [Xiaomi Mi Flora sensors](https://www.aliexpress.com/item/Newest-Original-Xiaomi-Flora-Monitor-Digital-Plants-Flowers-Soil-Water-Light-Tester-Sensor-Monitor-for-Aquarium/32685750372.html) (tested with firmware v2.6.2, v2.6.4, v2.6.6, others anticipated)
 * Build on top of [open-homeautomation/miflora](https://github.com/open-homeautomation/miflora)
 * Highly configurable
 * Data publication via MQTT
 * JSON encoded
 * MQTT authentication support
-* Daemon mode
+* Daemon mode (default)
 * Reliable and inituitive
 
 ### Installation
@@ -33,6 +33,13 @@ pip3 install -r requirements.txt
 ### Configuration
 
 To match personal needs all operation details can be configured using the file [`config.ini`](config.ini).
+
+You need to add at least one sensor to the configuration.
+Scan for available Miflora sensors in your proximity with the command:
+
+```shell
+hcitool lescan
+```
 
 ### Execution
 
