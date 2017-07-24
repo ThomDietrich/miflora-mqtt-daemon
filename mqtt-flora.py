@@ -2,6 +2,7 @@
 
 import sys
 import json
+import os.path
 from time import sleep, localtime, strftime
 from configparser import ConfigParser
 from miflora.miflora_poller import MiFloraPoller, MI_BATTERY, MI_CONDUCTIVITY, MI_LIGHT, MI_MOISTURE, MI_TEMPERATURE
@@ -16,7 +17,7 @@ print()
 # Load configuration file
 config = ConfigParser(delimiters=('=', ))
 config.optionxform = str
-config.read('config.ini')
+config.read(os.path.join(sys.path[0], 'config.ini'))
 daemon_enabled = config['Daemon'].getboolean('enabled', True)
 sleep_period = config['Daemon'].getint('period', 60)
 topic_prefix = config['MQTT'].get('topic_prefix', 'miflora')
