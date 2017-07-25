@@ -19,7 +19,7 @@ config = ConfigParser(delimiters=('=', ))
 config.optionxform = str
 config.read(os.path.join(sys.path[0], 'config.ini'))
 daemon_enabled = config['Daemon'].getboolean('enabled', True)
-sleep_period = config['Daemon'].getint('period', 60)
+sleep_period = config['Daemon'].getint('period', 300)
 topic_prefix = config['MQTT'].get('topic_prefix', 'miflora')
 miflora_cache_timeout = config['MiFlora'].getint('cache_timeout', 600)
 if not config['Sensors']:
@@ -40,9 +40,13 @@ for flora in config['Sensors'].items():
 
 # Callbacks http://www.eclipse.org/paho/clients/python/docs/#callbacks
 def on_connect(client, userdata, flags, rc):
-    if rc != 0:
-        print('Connected with result code {}: {}'.format(str(rc), mqtt.connack_string(rc)), file=sys.stderr)
-        sys.exit(1)
+    if rc == 0:
+        print('Connected.\n')
+    else:
+        print('Connection error with result code {} - {}'.format(str(rc), mqtt.connack_string(rc)), file=sys.stderr)
+        #kill main thread
+        os._exit(1)
+
 def on_publish(client, userdata, mid):
     print('Data successfully published!')
 
@@ -61,7 +65,6 @@ except:
     print('Error. Please check your MQTT connection settings in the configuration file "config.ini".', file=sys.stderr)
     sys.exit(1)
 else:
-    print('Connected.\n')
     mqtt_client.loop_start()
 
 # Sensor data retrieval and publishing
