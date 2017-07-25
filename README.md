@@ -9,21 +9,36 @@ The program can be executed for a single run or in **daemon mode** to run contin
 
 ### Features
 
-* Support for [Xiaomi Mi Flora sensors](https://www.aliexpress.com/item/Newest-Original-Xiaomi-Flora-Monitor-Digital-Plants-Flowers-Soil-Water-Light-Tester-Sensor-Monitor-for-Aquarium/32685750372.html) (tested with firmware v2.6.2, v2.6.4, v2.6.6, others anticipated)
+* Support for [Xiaomi](https://xiaomi-mi.com/sockets-and-sensors/xiaomi-huahuacaocao-flower-care-smart-monitor) [Mi Flora sensors](https://www.aliexpress.com/item/Newest-Original-Xiaomi-Flora-Monitor-Digital-Plants-Flowers-Soil-Water-Light-Tester-Sensor-Monitor-for-Aquarium/32685750372.html) (tested with firmware v2.6.2, v2.6.4, v2.6.6, v3.1.4, others anticipated)
 * Build on top of [open-homeautomation/miflora](https://github.com/open-homeautomation/miflora)
 * Highly configurable
 * Data publication via MQTT
 * JSON encoded
 * MQTT authentication support
 * Daemon mode (default)
+* MQTT-less mode, printing data directly to stdout/file
 * Reliable and inituitive
+
+![Promotional image](https://xiaomi-mi.com/uploads/ck/xiaomi-flower-monitor-001.jpg)
+
+### Readings
+
+The Mi Flora sensor offers the following plant and soil readings:
+
+| Name            | Description |
+|-----------------|-------------|
+| `temperature`   | Air temperature, in [°C] (0.1°C resolution) |
+| `light`         | [Sunlight intensity](https://aquarium-digest.com/tag/lumenslux-requirements-of-a-cannabis-plant/), in [lux] |
+| `moisture`      | (Soil moisture](https://observant.zendesk.com/hc/en-us/articles/208067926-Monitoring-Soil-Moisture-for-Optimal-Crop-Growth), in [%] |
+| `conductivity`  | [Soil fertility](https://www.plantcaretools.com/measure-fertilization-with-ec-meters-for-plants-faq), in [µS/cm] |
+| `battery`       | Sensor battery level, in [%] |
 
 ### Installation
 
 Shown for a modern Debian system:
 
 ```shell
-git clone https://github.com/janwh/miflora-mqtt-daemon.git /opt/miflora-mqtt-daemon
+git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git /opt/miflora-mqtt-daemon
 cd /opt/miflora-mqtt-daemon
 
 apt install python3 python3-pip bluetooth libbluetooth-dev libboost-python-dev libglib2.0-dev
@@ -87,7 +102,7 @@ Data will be published to the MQTT broker topic "`miflora/sensorname`" (names co
 An example:
 
 ```json
-{"light": 24, "moisture": 30, "temperature": 21.4, "conductivity": 1020, "battery": 100}
+{"light": 5424, "moisture": 30, "temperature": 21.4, "conductivity": 1020, "battery": 100}
 ```
 
 This data can be subscribed to and processed by other applications, like [Home Assistant](https://home-assistant.io) or [openHAB](https://openhab.org).
