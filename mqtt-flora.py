@@ -30,7 +30,7 @@ def on_connect(client, userdata, flags, rc):
         os._exit(1)
 
 def on_publish(client, userdata, mid):
-    print('Data successfully published!')
+    print('Data successfully published.')
 
 # Load configuration file
 config = ConfigParser(delimiters=('=', ))
@@ -74,7 +74,9 @@ if reporting_mode == 'mqtt-json':
         sys.exit(1)
     else:
         mqtt_client.loop_start()
-        sleep(1) # some slack to establish the connection
+        sleep(0.5) # some slack to establish the connection
+        mqtt_client.publish('{}/$announce'.format(topic_prefix), payload='{}', retain=True)
+        sleep(0.5) # some slack for the publish roundtrip and callback function
 
 sd_notifier.notify('READY=1')
 
@@ -98,6 +100,20 @@ for [name, mac] in config['Sensors'].items():
         print('Firmware:     {}'.format(flora_poller.firmware_version()))
         flores[name] = flora_poller
     print()
+
+# Discovery Announcement
+print('Announcing MiFlora devices to MQTT broker for auto-discovery ...')
+flores_info = dict()
+for [flora_name, flora_poller] in flores.items():
+    flora_info = dict()
+    flora_info['mac'] = flora_poller._mac
+    flora_info['topic'] = '{}/{}'.format(topic_prefix, flora_name)
+    flora_info['firmware'] = flora_poller.firmware_version()
+    flora_info['refresh'] = sleep_period
+    flora_info['location'] = ''
+    flores_info[flora_name] = flora_info
+mqtt_client.publish('{}/$announce'.format(topic_prefix), json.dumps(flores_info), retain=True)
+sleep(0.5) # some slack for the publish roundtrip and callback function
 
 sd_notifier.notify('STATUS=Initialization complete, starting MQTT publish loop')
 
