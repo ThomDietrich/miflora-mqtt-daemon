@@ -8,7 +8,7 @@ Type=notify
 User=daemon
 Group=daemon
 WorkingDirectory=/opt/miflora-mqtt-daemon/
-ExecStart=/opt/miflora-mqtt-daemon/mqtt-flora.py
+ExecStart=/opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py
 StandardOutput=null
 StandardError=journal
 Environment=PYTHONUNBUFFERED=true

@@ -54,25 +54,28 @@ sudo pip3 install -r requirements.txt
 To match personal needs, all operation details can be configured using the file [`config.ini`](config.ini).
 
 You need to add at least one sensor to the configuration.
-Scan for available Miflora sensors in your proximity with the command:
+Scan for available Mi Flora sensors in your proximity with the command:
 
 ```shell
 sudo hcitool lescan
 ```
+
+Interfacing your Mi Flora sensor with this program is harmless.
+The device will not be modified and will still work with the official Xiaomi app.
 
 ### Execution
 
 A first test run is as easy as:
 
 ```shell
-python3 mqtt-flora.py
+python3 miflora-mqtt-daemon.py
 ```
 
 With a correct configuration the result should look similar to the the screencap above.
 The extensive output can be reduced to error messages:
 
 ```shell
-python3 mqtt-flora.py > /dev/null
+python3 miflora-mqtt-daemon.py > /dev/null
 ```
 
 #### Continous Daemon/Service
@@ -85,7 +88,7 @@ This can be done either by using the internal daemon or cron.
 1. Systemd service - on systemd powered systems the recommended option
    
    ```shell
-   sudo ln -s /opt/miflora-mqtt-daemon/template.service /etc/systemd/system/miflora.service
+   sudo cp /opt/miflora-mqtt-daemon/template.service /etc/systemd/system/miflora.service
 
    sudo systemctl daemon-reload
 
@@ -98,13 +101,13 @@ This can be done either by using the internal daemon or cron.
 1. Screen Shell - Run the program inside a [screen shell](https://www.howtoforge.com/linux_screen):
    
    ```shell
-   screen -S mqtt-flora -d -m python3 /path/to/mqtt-flora.py
+   screen -S miflora-mqtt-daemon -d -m python3 /path/to/miflora-mqtt-daemon.py
    ```
 
 1. Cron job - Add a new con job, e.g., `/etc/cron.d/miflora`, execute every 5 minutes
    
    ```shell
-   */5 * * * * root python3 /path/to/mqtt-flora.py > /dev/null
+   */5 * * * * root python3 /path/to/miflora-mqtt-daemon.py > /dev/null
    ```
 
 ### Integration
@@ -127,6 +130,7 @@ Enjoy!
 > *Xiaomi* and *Mi Flora* are registered trademarks of *BEIJING XIAOMI TECHNOLOGY CO., LTD.*
 > 
 > This project is a community project not for commercial use.
+> The authors will not be held responsible in the event of device failure or other damages. 
 > 
 > This project is in no way affiliated with, authorized, maintained, sponsored or endorsed by *Xiaomi* or any of its affiliates or subsidiaries.
 
