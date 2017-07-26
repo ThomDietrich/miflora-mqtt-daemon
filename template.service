@@ -10,6 +10,7 @@ Group=daemon
 WorkingDirectory=/opt/miflora-mqtt-daemon/
 ExecStart=/opt/miflora-mqtt-daemon/mqtt-flora.py
 StandardOutput=null
+StandardError=journal
 Environment=PYTHONUNBUFFERED=true
 
 [Install]
