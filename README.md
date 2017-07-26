@@ -16,8 +16,10 @@ The program can be executed for a single run or in **daemon mode** to run contin
 * JSON encoded
 * MQTT authentication support
 * Daemon mode (default)
+* Systemd service file included, sd\_notify messages generated
 * MQTT-less mode, printing data directly to stdout/file
 * Reliable and inituitive
+* Tested on Raspberry Pi
 
 ![Promotional image](https://xiaomi-mi.com/uploads/ck/xiaomi-flower-monitor-001.jpg)
 
@@ -35,25 +37,27 @@ The Mi Flora sensor offers the following plant and soil readings:
 
 ### Installation
 
-Shown for a modern Debian system:
+On a modern Linux system just a few steps are needed.
+The following example shows the installation under Debian/Raspbian:
 
 ```shell
+sudo apt install git python3 python3-pip bluetooth
+
 git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git /opt/miflora-mqtt-daemon
 cd /opt/miflora-mqtt-daemon
 
-apt install python3 python3-pip bluetooth libbluetooth-dev libboost-python-dev libglib2.0-dev
-pip3 install -r requirements.txt
+sudo pip3 install -r requirements.txt
 ```
 
 ### Configuration
 
-To match personal needs all operation details can be configured using the file [`config.ini`](config.ini).
+To match personal needs, all operation details can be configured using the file [`config.ini`](config.ini).
 
 You need to add at least one sensor to the configuration.
 Scan for available Miflora sensors in your proximity with the command:
 
 ```shell
-hcitool lescan
+sudo hcitool lescan
 ```
 
 ### Execution
@@ -71,26 +75,33 @@ The extensive output can be reduced to error messages:
 python3 mqtt-flora.py > /dev/null
 ```
 
-You probably want to execute the program **continuously in the background**.
-This can either be done by using the internal daemon or cron.
+#### Continous Daemon/Service
 
-**Attention:** Daemon mode can be enabled (default) and disabled in the config file.
+You most probably want to execute the program **continuously in the background**.
+This can be done either by using the internal daemon or cron.
 
-1. Send the program into the background with some simple command line foo:
+**Attention:** Daemon mode must be enabled in the configuration file (default).
+
+1. Systemd service - on systemd powered systems the recommended option
    
    ```shell
-   python3 /path/to/mqtt-flora.py &
-   ```
-   
-   *Hint:* Bring back to foreground with `fg`.
+   sudo ln -s /opt/miflora-mqtt-daemon/template.service /etc/systemd/system/miflora.service
 
-2. Screen Shell - Run the program inside a [screen shell](https://www.howtoforge.com/linux_screen):
+   sudo systemctl daemon-reload
+
+   sudo systemctl start miflora.service
+   sudo systemctl status miflora.service
+
+   sudo systemctl enable miflora.service
+   ```
+
+1. Screen Shell - Run the program inside a [screen shell](https://www.howtoforge.com/linux_screen):
    
    ```shell
    screen -S mqtt-flora -d -m python3 /path/to/mqtt-flora.py
    ```
 
-3. Cron job - Add a new con job, e.g., `/etc/cron.d/miflora`, execute every 5 minutes
+1. Cron job - Add a new con job, e.g., `/etc/cron.d/miflora`, execute every 5 minutes
    
    ```shell
    */5 * * * * root python3 /path/to/mqtt-flora.py > /dev/null

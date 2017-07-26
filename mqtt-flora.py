@@ -7,6 +7,7 @@ from time import sleep, localtime, strftime
 from configparser import ConfigParser
 from miflora.miflora_poller import MiFloraPoller, MI_BATTERY, MI_CONDUCTIVITY, MI_LIGHT, MI_MOISTURE, MI_TEMPERATURE
 import paho.mqtt.client as mqtt
+import sdnotify
 
 parameters = [MI_BATTERY, MI_CONDUCTIVITY, MI_LIGHT, MI_MOISTURE, MI_TEMPERATURE]
 
@@ -15,10 +16,14 @@ print('Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon')
 print('Source: https://github.com/ThomDietrich/miflora-mqtt-daemon')
 print()
 
-# Eclipse Paho callbacks http://www.eclipse.org/paho/clients/python/docs/#callbacks
+# Systemd Service Notifications - https://github.com/bb4242/sdnotify
+sd_notifier = sdnotify.SystemdNotifier()
+
+# Eclipse Paho callbacks - http://www.eclipse.org/paho/clients/python/docs/#callbacks
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print('Connected.\n')
+        sd_notifier.notify('STATUS=MQTT connection established')
     else:
         print('Connection error with result code {} - {}'.format(str(rc), mqtt.connack_string(rc)), file=sys.stderr)
         #kill main thread
@@ -30,7 +35,7 @@ def on_publish(client, userdata, mid):
 # Load configuration file
 config = ConfigParser(delimiters=('=', ))
 config.optionxform = str
-config.read(os.path.join(sys.path[0], 'config.ini'))
+config.read([os.path.join(sys.path[0], 'config.ini'), os.path.join(sys.path[0], 'config.local.ini')])
 
 reporting_mode = config['General'].get('reporting_method', 'mqtt-json')
 daemon_enabled = config['Daemon'].getboolean('enabled', True)
@@ -47,6 +52,7 @@ if not config['Sensors']:
     print('Error. Please add at least one sensor to the configuration file "config.ini".', file=sys.stderr)
     print('Scan for available Miflora sensors with "sudo hcitool lescan".', file=sys.stderr)
     sys.exit(1)
+sd_notifier.notify('STATUS=Configuration accepted')
 
 # MQTT connection
 if reporting_mode == 'mqtt-json':
@@ -67,6 +73,8 @@ if reporting_mode == 'mqtt-json':
         mqtt_client.loop_start()
         sleep(1) # some slack to establish the connection
 
+sd_notifier.notify('READY=1')
+
 # Initialize Mi Flora sensors
 flores = dict()
 for [name, mac] in config['Sensors'].items():
@@ -79,6 +87,8 @@ for [name, mac] in config['Sensors'].items():
     print('Firmware:     {}'.format(flora_poller.firmware_version()))
     print()
     flores[name] = flora_poller
+
+sd_notifier.notify('STATUS=Initialization complete, starting MQTT publish loop')
 
 # Sensor data retrieval and publication
 while True:
@@ -101,11 +111,14 @@ while True:
         else:
             raise NameError('Unexpected reporting_mode.')
 
+    sd_notifier.notify('STATUS={} - Status messages published'.format(strftime('%Y-%m-%d %H:%M:%S', localtime())))
+
     if daemon_enabled:
         print('Sleeping ({} seconds) ...'.format(sleep_period))
         sleep(sleep_period)
         print()
     else:
-        mqtt_client.disconnect() if reporting_mode == 'mqtt-json'
+        if reporting_mode == 'mqtt-json':
+            mqtt_client.disconnect()
         break
 
