@@ -47,10 +47,12 @@ miflora_cache_timeout = sleep_period - 1
 # Check configuration
 if not reporting_mode in ['mqtt-json', 'json']:
     print('Error. Configuration parameter reporting_mode set to an invalid value.', file=sys.stderr)
+    sd_notifier.notify('STATUS=Configuration parameter reporting_mode set to an invalid value')
     sys.exit(1)
 if not config['Sensors']:
     print('Error. Please add at least one sensor to the configuration file "config.ini".', file=sys.stderr)
     print('Scan for available Miflora sensors with "sudo hcitool lescan".', file=sys.stderr)
+    sd_notifier.notify('STATUS=No sensors found in configuration file "config.ini"')
     sys.exit(1)
 sd_notifier.notify('STATUS=Configuration accepted')
 
@@ -68,6 +70,7 @@ if reporting_mode == 'mqtt-json':
                             keepalive=config['MQTT'].getint('keepalive', 60))
     except:
         print('Error. Please check your MQTT connection settings in the configuration file "config.ini".', file=sys.stderr)
+        sd_notifier.notify('STATUS=Please check your MQTT connection settings in the configuration file "config.ini"')
         sys.exit(1)
     else:
         mqtt_client.loop_start()
@@ -78,15 +81,23 @@ sd_notifier.notify('READY=1')
 # Initialize Mi Flora sensors
 flores = dict()
 for [name, mac] in config['Sensors'].items():
-    print('Adding device from config to Mi Flora device list ...')
+    sd_notifier.notify('STATUS=Attempting initial connection to MiFlora sensor "{}" ({})'.format(name, mac))
+    print('Adding sensor to device list and testing connection...')
     print('Name:         "{}"'.format(name))
     flora_poller = MiFloraPoller(mac=mac, cache_timeout=miflora_cache_timeout, retries=9)
     flora_poller.fill_cache()
-    print('Device name:  "{}"'.format(flora_poller.name()))
-    print('MAC address:  {}'.format(flora_poller._mac))
-    print('Firmware:     {}'.format(flora_poller.firmware_version()))
+    try:
+        flora_poller.parameter_value(MI_LIGHT)
+    except IOError:
+        print('Error. Initial connection to MiFlora sensor "{}" ({}) failed. Please check your setup and the MAC address.'.format(name, mac), file=sys.stderr)
+        sd_notifier.notify('STATUS=Initial connection to MiFlora sensor "{}" ({}) failed'.format(name, mac))
+        sys.exit(1)
+    else:
+        print('Device name:  "{}"'.format(flora_poller.name()))
+        print('MAC address:  {}'.format(flora_poller._mac))
+        print('Firmware:     {}'.format(flora_poller.firmware_version()))
+        flores[name] = flora_poller
     print()
-    flores[name] = flora_poller
 
 sd_notifier.notify('STATUS=Initialization complete, starting MQTT publish loop')
 
@@ -107,17 +118,19 @@ while True:
             data['timestamp'] = timestamp
             data['name'] = flora_name
             data['mac'] = flora_poller._mac
+            data['firmware'] = flora_poller.firmware_version()
             print('Data:', json.dumps(data))
         else:
             raise NameError('Unexpected reporting_mode.')
 
-    sd_notifier.notify('STATUS={} - Status messages published'.format(strftime('%Y-%m-%d %H:%M:%S', localtime())))
+    sd_notifier.notify('STATUS={} - Status messages for all sensors published'.format(strftime('%Y-%m-%d %H:%M:%S', localtime())))
 
     if daemon_enabled:
         print('Sleeping ({} seconds) ...'.format(sleep_period))
         sleep(sleep_period)
         print()
     else:
+        sd_notifier.notify('STATUS=Execution finished in non-daemon-mode')
         if reporting_mode == 'mqtt-json':
             mqtt_client.disconnect()
         break
