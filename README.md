@@ -41,7 +41,7 @@ On a modern Linux system just a few steps are needed.
 The following example shows the installation under Debian/Raspbian:
 
 ```shell
-sudo apt install git python3 python3-pip bluetooth
+sudo apt install git python3 python3-pip bluetooth bluez
 
 git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git /opt/miflora-mqtt-daemon
 cd /opt/miflora-mqtt-daemon

@@ -1,7 +1,7 @@
 [Unit]
 Description=Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon
 Documentation=https://github.com/ThomDietrich/miflora-mqtt-daemon
-After=syslog.target mosquitto.service bluetooth.service
+After=bluetooth.service mosquitto.service
 
 [Service]
 Type=notify
