@@ -93,24 +93,26 @@ for [name, mac] in config['Sensors'].items():
         print('Error. Initial connection to Mi Flora sensor "{}" ({}) failed. Please check your setup and the MAC address.'.format(name, mac), file=sys.stderr)
         sd_notifier.notify('STATUS=Initial connection to Mi Flora sensor "{}" ({}) failed'.format(name, mac))
         sys.exit(1)
-    else:
-        print('Device name:  "{}"'.format(flora_poller.name()))
-        print('MAC address:  {}'.format(flora_poller._mac))
-        print('Firmware:     {}'.format(flora_poller.firmware_version()))
-        flores[name] = flora_poller
+    print('Device name:  "{}"'.format(flora_poller.name()))
+    print('MAC address:  {}'.format(flora_poller._mac))
+    print('Firmware:     {}'.format(flora_poller.firmware_version()))
     print()
+
+    flora = dict()
+    flora['mac'] = flora_poller._mac
+    flora['poller'] = flora_poller
+    flora['firmware'] = flora_poller.firmware_version()
+    flora['refresh'] = sleep_period
+    flora['location'] = ''
+    flores[name] = flora
 
 # Discovery Announcement
 if reporting_mode == 'mqtt-json':
     print('Announcing MiFlora devices to MQTT broker for auto-discovery ...')
     flores_info = dict()
-    for [flora_name, flora_poller] in flores.items():
-        flora_info = dict()
-        flora_info['mac'] = flora_poller._mac
+    for [flora_name, flora] in flores.items():
+        flora_info = {key: value for key, value in flora.items() if key not in ['poller']}
         flora_info['topic'] = '{}/{}'.format(topic_prefix, flora_name)
-        flora_info['firmware'] = flora_poller.firmware_version()
-        flora_info['refresh'] = sleep_period
-        flora_info['location'] = ''
         flores_info[flora_name] = flora_info
     mqtt_client.publish('{}/$announce'.format(topic_prefix), json.dumps(flores_info), retain=True)
     sleep(0.5) # some slack for the publish roundtrip and callback function
@@ -120,16 +122,16 @@ sd_notifier.notify('STATUS=Initialization complete, starting MQTT publish loop')
 
 # Sensor data retrieval and publication
 while True:
-    for [flora_name, flora_poller] in flores.items():
+    for [flora_name, flora] in flores.items():
         data = dict()
-        while not flora_poller._cache:
+        while not flora['poller']._cache:
             try:
-                flora_poller.fill_cache()
+                flora['poller'].fill_cache()
             except IOError:
-                print('Failed to retrieve data from Mi Flora Sensor "{}" ({}). Retrying ...'.format(name, mac), file=sys.stderr)
-                sd_notifier.notify('STATUS=Failed to retrieve data from Mi Flora Sensor "{}" ({}). Retrying ...'.format(name, mac))
+                print('Failed to retrieve data from Mi Flora Sensor "{}" ({}). Retrying ...'.format(flora_name, flora['mac']), file=sys.stderr)
+                sd_notifier.notify('STATUS=Failed to retrieve data from Mi Flora Sensor "{}" ({}). Retrying ...'.format(flora_name, flora['mac']))
         for param in parameters:
-            data[param] = flora_poller.parameter_value(param)
+            data[param] = flora['poller'].parameter_value(param)
 
         timestamp = strftime('%Y-%m-%d %H:%M:%S', localtime())
 
@@ -141,8 +143,8 @@ while True:
         elif reporting_mode == 'json':
             data['timestamp'] = timestamp
             data['name'] = flora_name
-            data['mac'] = flora_poller._mac
-            data['firmware'] = flora_poller.firmware_version()
+            data['mac'] = flora['mac']
+            data['firmware'] = flora['firmware']
             print('Data:', json.dumps(data))
         else:
             raise NameError('Unexpected reporting_mode.')
