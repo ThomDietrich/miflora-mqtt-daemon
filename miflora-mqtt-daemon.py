@@ -62,6 +62,7 @@ if reporting_mode == 'mqtt-json':
     mqtt_client = mqtt.Client()
     mqtt_client.on_connect = on_connect
     mqtt_client.on_publish = on_publish
+    mqtt_client.will_set('{}/$announce'.format(topic_prefix), payload='{}', retain=True)
     if config['MQTT'].get('username'):
         mqtt_client.username_pw_set(config['MQTT'].get('username'), config['MQTT'].get('password', None))
     try:
@@ -74,9 +75,7 @@ if reporting_mode == 'mqtt-json':
         sys.exit(1)
     else:
         mqtt_client.loop_start()
-        sleep(0.5) # some slack to establish the connection
-        mqtt_client.publish('{}/$announce'.format(topic_prefix), payload='{}', retain=True)
-        sleep(0.5) # some slack for the publish roundtrip and callback function
+        sleep(1.0) # some slack to establish the connection
 
 sd_notifier.notify('READY=1')
 
@@ -102,18 +101,20 @@ for [name, mac] in config['Sensors'].items():
     print()
 
 # Discovery Announcement
-print('Announcing MiFlora devices to MQTT broker for auto-discovery ...')
-flores_info = dict()
-for [flora_name, flora_poller] in flores.items():
-    flora_info = dict()
-    flora_info['mac'] = flora_poller._mac
-    flora_info['topic'] = '{}/{}'.format(topic_prefix, flora_name)
-    flora_info['firmware'] = flora_poller.firmware_version()
-    flora_info['refresh'] = sleep_period
-    flora_info['location'] = ''
-    flores_info[flora_name] = flora_info
-mqtt_client.publish('{}/$announce'.format(topic_prefix), json.dumps(flores_info), retain=True)
-sleep(0.5) # some slack for the publish roundtrip and callback function
+if reporting_mode == 'mqtt-json':
+    print('Announcing MiFlora devices to MQTT broker for auto-discovery ...')
+    flores_info = dict()
+    for [flora_name, flora_poller] in flores.items():
+        flora_info = dict()
+        flora_info['mac'] = flora_poller._mac
+        flora_info['topic'] = '{}/{}'.format(topic_prefix, flora_name)
+        flora_info['firmware'] = flora_poller.firmware_version()
+        flora_info['refresh'] = sleep_period
+        flora_info['location'] = ''
+        flores_info[flora_name] = flora_info
+    mqtt_client.publish('{}/$announce'.format(topic_prefix), json.dumps(flores_info), retain=True)
+    sleep(0.5) # some slack for the publish roundtrip and callback function
+    print()
 
 sd_notifier.notify('STATUS=Initialization complete, starting MQTT publish loop')
 
@@ -153,6 +154,7 @@ while True:
         sleep(sleep_period)
         print()
     else:
+        print('Execution finished in non-daemon-mode.')
         sd_notifier.notify('STATUS=Execution finished in non-daemon-mode')
         if reporting_mode == 'mqtt-json':
             mqtt_client.disconnect()
