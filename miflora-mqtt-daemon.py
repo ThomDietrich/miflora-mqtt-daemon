@@ -87,12 +87,12 @@ for [name, mac] in config['Sensors'].items():
     print('Adding sensor to device list and testing connection...')
     print('Name:         "{}"'.format(name))
     flora_poller = MiFloraPoller(mac=mac, cache_timeout=miflora_cache_timeout, retries=9)
-    flora_poller.fill_cache()
     try:
+        flora_poller.fill_cache()
         flora_poller.parameter_value(MI_LIGHT)
     except IOError:
-        print('Error. Initial connection to MiFlora sensor "{}" ({}) failed. Please check your setup and the MAC address.'.format(name, mac), file=sys.stderr)
-        sd_notifier.notify('STATUS=Initial connection to MiFlora sensor "{}" ({}) failed'.format(name, mac))
+        print('Error. Initial connection to Mi Flora sensor "{}" ({}) failed. Please check your setup and the MAC address.'.format(name, mac), file=sys.stderr)
+        sd_notifier.notify('STATUS=Initial connection to Mi Flora sensor "{}" ({}) failed'.format(name, mac))
         sys.exit(1)
     else:
         print('Device name:  "{}"'.format(flora_poller.name()))
@@ -121,8 +121,15 @@ sd_notifier.notify('STATUS=Initialization complete, starting MQTT publish loop')
 while True:
     for [flora_name, flora_poller] in flores.items():
         data = dict()
+        while not flora_poller._cache:
+            try:
+                flora_poller.fill_cache()
+            except IOError:
+                print('Failed to retrieve data from Mi Flora Sensor "{}" ({}). Retrying ...'.format(name, mac), file=sys.stderr)
+                sd_notifier.notify('STATUS=Failed to retrieve data from Mi Flora Sensor "{}" ({}). Retrying ...'.format(name, mac))
         for param in parameters:
             data[param] = flora_poller.parameter_value(param)
+
         timestamp = strftime('%Y-%m-%d %H:%M:%S', localtime())
 
         if reporting_mode == 'mqtt-json':
