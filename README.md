@@ -19,7 +19,7 @@ The program can be executed for a single run or in **daemon mode** to run contin
 * Daemon mode (default)
 * Systemd service file included, sd\_notify messages generated
 * MQTT-less mode, printing data directly to stdout/file
-* Reliable and inituitive
+* Reliable and intuitive
 * Tested on Raspberry Pi 3 and 0W
 
 ![Promotional image](https://xiaomi-mi.com/uploads/ck/xiaomi-flower-monitor-001.jpg)
@@ -74,8 +74,8 @@ python3 miflora-mqtt-daemon.py
 
 **⚠️️ Attention:
 Please ensure a good communication link to all Mi Floras.
-The daemon will currently retry connection to a non-responsive sensor for longer time periodes, which will limit the overall usefulness of the application.
-To evaluate connection reliability execute the programm in from the command line at least once and pay attention to reported communication problems.
+The daemon will currently retry connection to a non-responsive sensor for longer time periods, which will limit the overall usefulness of the application.
+To evaluate connection reliability execute the program in from the command line at least once and pay attention to reported communication problems.
 This problem will be solved in a future version of miflora-mqtt-daemon.**
 
 With a correct configuration the result should look similar to the the screencap above.
@@ -87,7 +87,7 @@ The extensive output can be reduced to error messages:
 python3 miflora-mqtt-daemon.py > /dev/null
 ```
 
-#### Continous Daemon/Service
+#### Continuous Daemon/Service
 
 You most probably want to execute the program **continuously in the background**.
 This can be done either by using the internal daemon or cron.
