@@ -72,7 +72,15 @@ A first test run is as easy as:
 python3 miflora-mqtt-daemon.py
 ```
 
+**⚠️️ Attention:
+Please ensure a good communication link to all Mi Floras.
+The daemon will currently retry connection to a non-responsive sensor for longer time periodes, which will limit the overall usefulness of the application.
+To evaluate connection reliability execute the programm in from the command line at least once and pay attention to reported communication problems.
+This problem will be solved in a future version of miflora-mqtt-daemon.**
+
 With a correct configuration the result should look similar to the the screencap above.
+Pay attention to communication errors due to distance related weak BLE connections.
+
 The extensive output can be reduced to error messages:
 
 ```shell
@@ -86,7 +94,7 @@ This can be done either by using the internal daemon or cron.
 
 **Attention:** Daemon mode must be enabled in the configuration file (default).
 
-1. Systemd service - on systemd powered systems the recommended option
+1. Systemd service - on systemd powered systems the **recommended** option
    
    ```shell
    sudo cp /opt/miflora-mqtt-daemon/template.service /etc/systemd/system/miflora.service

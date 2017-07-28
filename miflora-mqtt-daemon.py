@@ -98,7 +98,7 @@ for [name, mac] in config['Sensors'].items():
     flora = dict()
     print('Adding sensor to device list and testing connection ...')
     print('Name:         "{}"'.format(name))
-    sd_notifier.notify('STATUS=Attempting initial connection to MiFlora sensor "{}" ({})'.format(name, mac))
+    sd_notifier.notify('STATUS=Attempting initial connection to Mi Flora sensor "{}" ({})'.format(name, mac))
     flora_poller = MiFloraPoller(mac=mac, cache_timeout=miflora_cache_timeout, retries=9)
     flora['poller'] = flora_poller
     flora['mac'] = flora_poller._mac
@@ -121,7 +121,7 @@ for [name, mac] in config['Sensors'].items():
 
 # Discovery Announcement
 if reporting_mode == 'mqtt-json':
-    print('Announcing MiFlora devices to MQTT broker for auto-discovery ...')
+    print('Announcing Mi Flora devices to MQTT broker for auto-discovery ...')
     flores_info = dict()
     for [flora_name, flora] in flores.items():
         flora_info = {key: value for key, value in flora.items() if key not in ['poller']}
@@ -131,7 +131,7 @@ if reporting_mode == 'mqtt-json':
     sleep(0.5) # some slack for the publish roundtrip and callback function
     print()
 elif reporting_mode == 'mqtt-homie':
-    print('Announcing MiFlora devices to MQTT broker for auto-discovery ...')
+    print('Announcing Mi Flora devices to MQTT broker for auto-discovery ...')
     mqtt_client.publish('{}/{}/$homie'.format(base_topic, device_id), '2.1.0-alpha', 1, True)
     mqtt_client.publish('{}/{}/$online'.format(base_topic, device_id), 'true', 1, True)
     mqtt_client.publish('{}/{}/$name'.format(base_topic, device_id), device_id, 1, True)
