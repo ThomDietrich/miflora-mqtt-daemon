@@ -13,13 +13,14 @@ The program can be executed for a single run or in **daemon mode** to run contin
 * Build on top of [open-homeautomation/miflora](https://github.com/open-homeautomation/miflora)
 * Highly configurable
 * Data publication via MQTT
-* JSON encoded
+* JSON encoded or following the [Homie Convention](https://github.com/marvinroger/homie)
+* Announcement messages to support auto-discovery services
 * MQTT authentication support
 * Daemon mode (default)
 * Systemd service file included, sd\_notify messages generated
 * MQTT-less mode, printing data directly to stdout/file
 * Reliable and inituitive
-* Tested on Raspberry Pi
+* Tested on Raspberry Pi 3 and 0W
 
 ![Promotional image](https://xiaomi-mi.com/uploads/ck/xiaomi-flower-monitor-001.jpg)
 
@@ -31,7 +32,7 @@ The Mi Flora sensor offers the following plant and soil readings:
 |-----------------|-------------|
 | `temperature`   | Air temperature, in [°C] (0.1°C resolution) |
 | `light`         | [Sunlight intensity](https://aquarium-digest.com/tag/lumenslux-requirements-of-a-cannabis-plant/), in [lux] |
-| `moisture`      | (Soil moisture](https://observant.zendesk.com/hc/en-us/articles/208067926-Monitoring-Soil-Moisture-for-Optimal-Crop-Growth), in [%] |
+| `moisture`      | [Soil moisture](https://observant.zendesk.com/hc/en-us/articles/208067926-Monitoring-Soil-Moisture-for-Optimal-Crop-Growth), in [%] |
 | `conductivity`  | [Soil fertility](https://www.plantcaretools.com/measure-fertilization-with-ec-meters-for-plants-faq), in [µS/cm] |
 | `battery`       | Sensor battery level, in [%] |
 
@@ -112,7 +113,7 @@ This can be done either by using the internal daemon or cron.
 
 ### Integration
 
-Data will be published to the MQTT broker topic "`miflora/sensorname`" (names configurable).
+In the "mqtt-json" reporting mode, data will be published to the MQTT broker topic "`miflora/sensorname`" (names configurable).
 An example:
 
 ```json
