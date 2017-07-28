@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import re
 import sys
 import json
 import os.path
@@ -87,6 +88,13 @@ sd_notifier.notify('READY=1')
 # Initialize Mi Flora sensors
 flores = dict()
 for [name, mac] in config['Sensors'].items():
+    location = ''
+    if '@' in name:
+        name, location = name.split("@")
+    if not re.match("C4:7C:8D:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}", mac):
+        print('Error. The MAC address "{}" seems to be in the wrong format. Please check your configuration.'.format(mac), file=sys.stderr)
+        sd_notifier.notify('STATUS=The MAC address "{}" seems to be in the wrong format. Please check your configuration.'.format(mac))
+        sys.exit(1)
     flora = dict()
     print('Adding sensor to device list and testing connection ...')
     print('Name:         "{}"'.format(name))
@@ -94,6 +102,8 @@ for [name, mac] in config['Sensors'].items():
     flora_poller = MiFloraPoller(mac=mac, cache_timeout=miflora_cache_timeout, retries=9)
     flora['poller'] = flora_poller
     flora['mac'] = flora_poller._mac
+    flora['refresh'] = sleep_period
+    flora['location'] = location
     try:
         flora_poller.fill_cache()
         flora_poller.parameter_value(MI_LIGHT)
@@ -107,8 +117,6 @@ for [name, mac] in config['Sensors'].items():
         print('MAC address:  {}'.format(flora_poller._mac))
         print('Firmware:     {}'.format(flora_poller.firmware_version()))
         print()
-    flora['refresh'] = sleep_period
-    flora['location'] = ''
     flores[name] = flora
 
 # Discovery Announcement
