@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import re
 import sys
+import re
 import json
 import os.path
 from time import sleep, localtime, strftime
@@ -16,6 +16,9 @@ parameters = [MI_BATTERY, MI_CONDUCTIVITY, MI_LIGHT, MI_MOISTURE, MI_TEMPERATURE
 print('Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon')
 print('Source: https://github.com/ThomDietrich/miflora-mqtt-daemon')
 print()
+
+if False:
+    print('Sorry, this script requires a python3 runtime environemt.', file=sys.stderr)
 
 # Systemd Service Notifications - https://github.com/bb4242/sdnotify
 sd_notifier = sdnotify.SystemdNotifier()
@@ -176,6 +179,7 @@ while True:
         while retries > 0 and not flora['poller']._cache:
             try:
                 flora['poller'].fill_cache()
+                flora['poller'].parameter_value(MI_LIGHT)
             except IOError:
                 print('Failed to retrieve data from Mi Flora Sensor "{}" ({}). Retrying ...'.format(flora_name, flora['mac']), file=sys.stderr)
                 sd_notifier.notify('STATUS=Failed to retrieve data from Mi Flora Sensor "{}" ({}). Retrying ...'.format(flora_name, flora['mac']))
