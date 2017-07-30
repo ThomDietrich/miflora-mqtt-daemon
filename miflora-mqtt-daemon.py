@@ -5,6 +5,8 @@ import re
 import json
 import os.path
 from time import sleep, localtime, strftime
+from colorama import init as colorama_init
+from colorama import Fore, Back, Style
 from configparser import ConfigParser
 import unicodedata
 from miflora.miflora_poller import MiFloraPoller, MI_BATTERY, MI_CONDUCTIVITY, MI_LIGHT, MI_MOISTURE, MI_TEMPERATURE
@@ -14,9 +16,11 @@ import sdnotify
 parameters = [MI_BATTERY, MI_CONDUCTIVITY, MI_LIGHT, MI_MOISTURE, MI_TEMPERATURE]
 
 # Intro
+colorama_init()
+print(Fore.GREEN + Style.BRIGHT)
 print('Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon')
 print('Source: https://github.com/ThomDietrich/miflora-mqtt-daemon')
-print()
+print(Style.RESET_ALL)
 
 if False:
     print('Sorry, this script requires a python3 runtime environemt.', file=sys.stderr)
@@ -37,6 +41,9 @@ def on_connect(client, userdata, flags, rc):
 def on_publish(client, userdata, mid):
     #print('Data successfully published.')
     pass
+
+def timestamp():
+    return strftime('%Y-%m-%d %H:%M:%S', localtime())
 
 def flores_to_openhab_items(flores):
     items = list()
@@ -124,7 +131,7 @@ for [name, mac] in config['Sensors'].items():
     print('Name:          "{}"'.format(name_pretty))
     sd_notifier.notify('STATUS=Attempting initial connection to Mi Flora sensor "{}" ({})'.format(name_pretty, mac))
 
-    flora_poller = MiFloraPoller(mac=mac, cache_timeout=miflora_cache_timeout, retries=9)
+    flora_poller = MiFloraPoller(mac=mac, cache_timeout=miflora_cache_timeout, retries=3)
     flora['poller'] = flora_poller
     flora['pretty'] = name_pretty
     flora['mac'] = flora_poller._mac
@@ -135,7 +142,8 @@ for [name, mac] in config['Sensors'].items():
         flora_poller.parameter_value(MI_LIGHT)
         flora['firmware'] = flora_poller.firmware_version()
     except IOError:
-        print('Error. Initial connection to Mi Flora sensor "{}" ({}) failed. Please check your setup and the MAC address.'.format(name_pretty, mac), file=sys.stderr)
+        print('Error. Initial connection to Mi Flora sensor "{}" ({}) failed. '.format(name_pretty, mac) + \
+              'Please check your setup and the MAC address. The sensor will not be used.\n', file=sys.stderr)
         sd_notifier.notify('STATUS=Initial connection to Mi Flora sensor "{}" ({}) failed'.format(name_pretty, mac))
         continue
     else:
@@ -195,7 +203,7 @@ elif reporting_mode == 'mqtt-homie':
     sleep(0.5) # some slack for the publish roundtrip and callback function
     print()
 
-sd_notifier.notify('STATUS=Initialization complete, starting MQTT publish loop')
+sd_notifier.notify('STATUS={} - Initialization complete, starting MQTT publish loop'.format(timestamp()))
 
 #flores_to_openhab_items(flores)
 
@@ -204,28 +212,31 @@ while True:
     for [flora_name, flora] in flores.items():
         data = dict()
         retries = 3
+        flora['poller']._cache = None
         while retries > 0 and not flora['poller']._cache:
             try:
+                print('[{}] Retrieving data from sensor "{}" ...'.format(timestamp(), flora['pretty']))
                 flora['poller'].fill_cache()
-                flora['poller'].parameter_value(MI_LIGHT)
             except IOError:
-                print('Failed to retrieve data from Mi Flora Sensor "{}" ({}). Retrying ...'.format(flora['pretty'], flora['mac']), file=sys.stderr)
-                sd_notifier.notify('STATUS=Failed to retrieve data from Mi Flora Sensor "{}" ({}). Retrying ...'.format(flora['pretty'], flora['mac']))
                 retries = retries - 1
+                if retries > 0:
+                    print('[{}] Retrying ...'.format(timestamp()))
+
         if not flora['poller']._cache:
+            print('[{}] Failed to retrieve data from Mi Flora sensor "{}" ({}).'.format(timestamp(), flora['pretty'], flora['mac']), file=sys.stderr)
+            sd_notifier.notify('STATUS={} - Failed to retrieve data from Mi Flora sensor "{}" ({}).'.format(timestamp(), flora['pretty'], flora['mac']))
             continue
+
         for param in parameters:
             data[param] = flora['poller'].parameter_value(param)
 
-        timestamp = strftime('%Y-%m-%d %H:%M:%S', localtime())
-
         if reporting_mode == 'mqtt-json':
-            print('[{}] Attempting to publishing to MQTT topic "{}/{}" ...\nData: {}'.format(timestamp, base_topic, flora['pretty'], json.dumps(data)))
+            print('[{}] Publishing to MQTT topic "{}/{}": {}'.format(timestamp(), base_topic, flora_name, json.dumps(data)))
             mqtt_client.publish('{}/{}'.format(base_topic, flora_name), json.dumps(data))
             sleep(0.5) # some slack for the publish roundtrip and callback function
             print()
         elif reporting_mode == 'mqtt-homie':
-            print('[{}] Attempting to publishing data for Mi Flora "{}" ...\nData: {}'.format(timestamp, flora['pretty'], str(data)))
+            print('[{}] Publishing data for Mi Flora sensor "{}": {}'.format(timestamp(), flora['pretty'], json.dumps(data)))
             for [param, value] in data.items():
                 mqtt_client.publish('{}/{}/{}/{}'.format(base_topic, device_id, flora_name, param), value, 1, False)
             sleep(0.5) # some slack for the publish roundtrip and callback function
@@ -240,7 +251,7 @@ while True:
         else:
             raise NameError('Unexpected reporting_mode.')
 
-    sd_notifier.notify('STATUS={} - Status messages for all sensors published'.format(strftime('%Y-%m-%d %H:%M:%S', localtime())))
+    sd_notifier.notify('STATUS={} - Status messages published.'.format(timestamp()))
 
     if daemon_enabled:
         print('Sleeping ({} seconds) ...'.format(sleep_period))
@@ -248,7 +259,7 @@ while True:
         print()
     else:
         print('Execution finished in non-daemon-mode.')
-        sd_notifier.notify('STATUS=Execution finished in non-daemon-mode')
+        sd_notifier.notify('STATUS={} - Execution finished in non-daemon-mode.'.format(timestamp()))
         if reporting_mode == 'mqtt-json':
             mqtt_client.disconnect()
         break
