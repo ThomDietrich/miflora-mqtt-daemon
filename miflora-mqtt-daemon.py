@@ -41,8 +41,10 @@ def print_line(text, error = False, warning=False, sd_notify=False, console=True
             print(Fore.MAGENTA + '[{}] '.format(timestamp) + Fore.YELLOW + '{}'.format(text) + Fore.RESET)
         else:
             print(Fore.MAGENTA + '[{}] '.format(timestamp) + Fore.RESET + '{}'.format(text))
+
+    timestamp_sd = strftime('%b %d %H:%M:%S', localtime())
     if sd_notify:
-        sd_notifier.notify('STATUS={} - {}.'.format(timestamp, text))
+        sd_notifier.notify('STATUS={} - {}.'.format(timestamp_sd, text))
 
 
 # Eclipse Paho callbacks - http://www.eclipse.org/paho/clients/python/docs/#callbacks
@@ -98,7 +100,6 @@ daemon_enabled = config['Daemon'].getboolean('enabled', True)
 base_topic = config['MQTT'].get('base_topic', 'homie' if reporting_mode == 'mqtt-homie' else 'miflora').lower()
 device_id = config['MQTT'].get('homie_device_id', 'miflora-mqtt-daemon').lower()
 sleep_period = config['Daemon'].getint('period', 300)
-#miflora_cache_timeout = config['MiFlora'].getint('cache_timeout', 600)
 miflora_cache_timeout = sleep_period - 1
 
 # Check configuration

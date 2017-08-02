@@ -1,7 +1,8 @@
 # Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon
 
 A simple Linux python script to query arbitrary Mi Flora plant sensor devices and send the data to an **MQTT** broker,
-e.g., the famous [Eclipse Mosquitto](https://projects.eclipse.org/projects/technology.mosquitto) or the embedded MQTT broker in [Home Assistant](https://home-assistant.io). After data made the hop to the MQTT broker it can be used by home automation software like Home Assistant or [openHAB](https://openhab.org).
+e.g., the famous [Eclipse Mosquitto](https://projects.eclipse.org/projects/technology.mosquitto).
+After data made the hop to the MQTT broker it can be used by home automation software, like [openHAB](https://openhab.org) or Home Assistant.
 
 ![Demo gif for command line execution](demo.gif)
 
@@ -17,8 +18,9 @@ The program can be executed for a single run or in **daemon mode** to run contin
 * Announcement messages to support auto-discovery services
 * MQTT authentication support
 * Daemon mode (default)
-* Systemd service file included, sd\_notify messages generated
+* Systemd service, sd\_notify messages generated
 * MQTT-less mode, printing data directly to stdout/file
+* Automatic generation of openHAB items and rules
 * Reliable and intuitive
 * Tested on Raspberry Pi 3 and 0W
 
@@ -39,14 +41,14 @@ The Mi Flora sensor offers the following plant and soil readings:
 ### Installation
 
 On a modern Linux system just a few steps are needed.
-The following example shows the installation under Debian/Raspbian:
+The following example shows the installation under Debian/Raspbian below the `/opt` directory:
 
 ```shell
 sudo apt install git python3 python3-pip bluetooth bluez
 
 git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git /opt/miflora-mqtt-daemon
-cd /opt/miflora-mqtt-daemon
 
+cd /opt/miflora-mqtt-daemon
 sudo pip3 install -r requirements.txt
 ```
 
@@ -54,6 +56,11 @@ sudo pip3 install -r requirements.txt
 
 To match personal needs, all operation details can be configured using the file [`config.ini`](config.ini).
 
+```shell
+vim /opt/miflora-mqtt-daemon/config.ini
+```
+
+**Attention:**
 You need to add at least one sensor to the configuration.
 Scan for available Mi Flora sensors in your proximity with the command:
 
@@ -69,14 +76,13 @@ The device will not be modified and will still work with the official Xiaomi app
 A first test run is as easy as:
 
 ```shell
-python3 miflora-mqtt-daemon.py
+python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py
 ```
 
 **⚠️️ Attention:
 Please ensure a good communication link to all Mi Floras.
-The daemon will currently retry connection to a non-responsive sensor for longer time periods, which will limit the overall usefulness of the application.
-To evaluate connection reliability execute the program in from the command line at least once and pay attention to reported communication problems.
-This problem will be solved in a future version of miflora-mqtt-daemon.**
+Sensors that can not be reached during the initital communication testing phase will be ignored.
+To evaluate connection reliability execute the program in from the command line at least once and pay attention to reported communication problems.**
 
 With a correct configuration the result should look similar to the the screencap above.
 Pay attention to communication errors due to distance related weak BLE connections.
@@ -84,7 +90,7 @@ Pay attention to communication errors due to distance related weak BLE connectio
 The extensive output can be reduced to error messages:
 
 ```shell
-python3 miflora-mqtt-daemon.py > /dev/null
+python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py > /dev/null
 ```
 
 #### Continuous Daemon/Service
@@ -113,12 +119,6 @@ This can be done either by using the internal daemon or cron.
    screen -S miflora-mqtt-daemon -d -m python3 /path/to/miflora-mqtt-daemon.py
    ```
 
-1. Cron job - Add a new con job, e.g., `/etc/cron.d/miflora`, execute every 5 minutes
-   
-   ```shell
-   */5 * * * * root python3 /path/to/miflora-mqtt-daemon.py > /dev/null
-   ```
-
 ### Integration
 
 In the "mqtt-json" reporting mode, data will be published to the MQTT broker topic "`miflora/sensorname`" (names configurable).
@@ -128,7 +128,7 @@ An example:
 {"light": 5424, "moisture": 30, "temperature": 21.4, "conductivity": 1020, "battery": 100}
 ```
 
-This data can be subscribed to and processed by other applications, like [Home Assistant](https://home-assistant.io) or [openHAB](https://openhab.org).
+This data can be subscribed to and processed by other applications, like [openHAB](https://openhab.org).
 
 Enjoy!
 
