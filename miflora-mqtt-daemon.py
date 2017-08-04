@@ -44,7 +44,7 @@ def print_line(text, error = False, warning=False, sd_notify=False, console=True
 
     timestamp_sd = strftime('%b %d %H:%M:%S', localtime())
     if sd_notify:
-        sd_notifier.notify('STATUS={} - {}.'.format(timestamp_sd, text))
+        sd_notifier.notify('STATUS={} - {}.'.format(timestamp_sd, unidecode(text)))
 
 
 # Eclipse Paho callbacks - http://www.eclipse.org/paho/clients/python/docs/#callbacks
