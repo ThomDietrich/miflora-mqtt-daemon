@@ -8,7 +8,7 @@ After data made the hop to the MQTT broker it can be used by home automation sof
 
 The program can be executed for a single run or in **daemon mode** to run continuously in the background.
 
-### Features
+## Features
 
 * Support for [Xiaomi](https://xiaomi-mi.com/sockets-and-sensors/xiaomi-huahuacaocao-flower-care-smart-monitor) [Mi Flora sensors](https://www.aliexpress.com/item/Newest-Original-Xiaomi-Flora-Monitor-Digital-Plants-Flowers-Soil-Water-Light-Tester-Sensor-Monitor-for-Aquarium/32685750372.html) (tested with firmware v2.6.2, v2.6.4, v2.6.6, v3.1.4, others anticipated)
 * Build on top of [open-homeautomation/miflora](https://github.com/open-homeautomation/miflora)
@@ -38,9 +38,15 @@ The Mi Flora sensor offers the following plant and soil readings:
 | `conductivity`  | [Soil fertility](https://www.plantcaretools.com/measure-fertilization-with-ec-meters-for-plants-faq), in [µS/cm] |
 | `battery`       | Sensor battery level, in [%] |
 
-### Installation
+## Prerequisites
 
-On a modern Linux system just a few steps are needed.
+An MQTT broker is needed as the counterpart for this daemon.
+Even though an MQTT-less mode is provided, it is not recommended for normal smart home automation integration.
+MQTT is huge help in connecting different parts of your smart home and setting up of a broker is quick and easy.
+
+## Installation
+
+On a modern Linux system just a few steps are needed to get the daemon working.
 The following example shows the installation under Debian/Raspbian below the `/opt` directory:
 
 ```shell
@@ -52,7 +58,7 @@ cd /opt/miflora-mqtt-daemon
 sudo pip3 install -r requirements.txt
 ```
 
-### Configuration
+## Configuration
 
 To match personal needs, all operation details can be configured using the file [`config.ini`](config.ini).
 
@@ -71,7 +77,7 @@ sudo hcitool lescan
 Interfacing your Mi Flora sensor with this program is harmless.
 The device will not be modified and will still work with the official Xiaomi app.
 
-### Execution
+## Execution
 
 A first test run is as easy as:
 
@@ -93,7 +99,7 @@ The extensive output can be reduced to error messages:
 python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py > /dev/null
 ```
 
-#### Continuous Daemon/Service
+### Continuous Daemon/Service
 
 You most probably want to execute the program **continuously in the background**.
 This can be done either by using the internal daemon or cron.
@@ -119,9 +125,9 @@ This can be done either by using the internal daemon or cron.
    screen -S miflora-mqtt-daemon -d -m python3 /path/to/miflora-mqtt-daemon.py
    ```
 
-### Integration
+## Integration
 
-In the "mqtt-json" reporting mode, data will be published to the MQTT broker topic "`miflora/sensorname`" (names configurable).
+In the "mqtt-json" reporting mode, data will be published to the MQTT broker topic "`miflora/sensorname`" (e.g. `miflora/petunia`, names configurable).
 An example:
 
 ```json
@@ -131,6 +137,32 @@ An example:
 This data can be subscribed to and processed by other applications, like [openHAB](https://openhab.org).
 
 Enjoy!
+
+
+### openHAB
+
+The following code snippet shows a simple example of how a Mi Flora openHAB Items file could look like for the above example:
+
+```java
+// miflora.items
+
+// Mi Flora specific groups
+Group gBattery "Mi Flora sensor battery level elements" (gAll)
+Group gTemperature "Mi Flora air temperature elements" (gAll)
+Group gMoisture "Mi Flora soil moisture elements" (gAll)
+Group gConductivity "Mi Flora soil conductivity/fertility elements" (gAll)
+Group gLight "Mi Flora sunlight intensity elements" (gAll)
+
+// Mi Flora "Big Blue Petunia" (C4:7C:8D:60:DC:E6)
+Number Balcony_Petunia_Battery "Balcony Petunia Sensor Battery Level [%d %%]" <text> (gBalcony, gBattery) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.battery)]"}
+Number Balcony_Petunia_Temperature "Balcony Petunia Air Temperature [%.1f °C]" <text> (gBalcony, gTemperature) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.temperature)]"}
+Number Balcony_Petunia_Moisture "Balcony Petunia Soil Moisture [%d %%]" <text> (gBalcony, gMoisture) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.moisture)]"}
+Number Balcony_Petunia_Conductivity "Balcony Petunia Soil Conductivity/Fertility [%d µS/cm]" <text> (gBalcony, gConductivity) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.conductivity)]"}
+Number Balcony_Petunia_Light "Balcony Petunia Sunlight Intensity [%d lux]" <text> (gBalcony, gLight) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.light)]"}
+```
+
+The daemon includes a function to generate these items definitions for you!
+The function is finished but not yet available in the stable version. Please contact me for details.
 
 ----
 
