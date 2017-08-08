@@ -167,6 +167,7 @@ for [name, mac] in config['Sensors'].items():
     flora['mac'] = flora_poller._mac
     flora['refresh'] = sleep_period
     flora['location'] = location
+    flora['stats'] = {"count": 0, "success": 0, "failure": 0}
     try:
         flora_poller.fill_cache()
         flora_poller.parameter_value(MI_LIGHT)
@@ -187,7 +188,7 @@ if reporting_mode == 'mqtt-json':
     print_line('Announcing Mi Flora devices to MQTT broker for auto-discovery ...')
     flores_info = dict()
     for [flora_name, flora] in flores.items():
-        flora_info = {key: value for key, value in flora.items() if key not in ['poller']}
+        flora_info = {key: value for key, value in flora.items() if key not in ['poller', 'stats']}
         flora_info['topic'] = '{}/{}'.format(base_topic, flora_name)
         flores_info[flora_name] = flora_info
     mqtt_client.publish('{}/$announce'.format(base_topic), json.dumps(flores_info), retain=True)
@@ -242,6 +243,7 @@ while True:
         attempts = 2
         flora['poller']._cache = None
         flora['poller']._last_read = None
+        flora['stats']['count'] = flora['stats']['count'] + 1
         print_line('Retrieving data from sensor "{}" ...'.format(flora['pretty']))
         while attempts != 0 and not flora['poller']._cache:
             try:
@@ -255,9 +257,14 @@ while True:
                 flora['poller']._last_read = None
 
         if not flora['poller']._cache:
-            print_line('Failed to retrieve data from Mi Flora sensor "{}" ({})'.format(flora['pretty'], flora['mac']), error = True, sd_notify = True)
+            flora['stats']['failure'] = flora['stats']['failure'] + 1
+            print_line('Failed to retrieve data from Mi Flora sensor "{}" ({}), success rate: {:.0%}'.format(
+                flora['pretty'], flora['mac'], flora['stats']['success']/flora['stats']['count']
+                ), error = True, sd_notify = True)
             print()
             continue
+        else:
+            flora['stats']['success'] = flora['stats']['success'] + 1
 
         for param,_ in parameters.items():
             data[param] = flora['poller'].parameter_value(param)
