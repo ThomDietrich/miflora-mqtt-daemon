@@ -172,7 +172,7 @@ for [name, mac] in config['Sensors'].items():
         flora_poller.parameter_value(MI_LIGHT)
         flora['firmware'] = flora_poller.firmware_version()
     except IOError:
-        print_line('Initial connection to Mi Flora sensor "{}" ({}) failed. Please ensure a good link quality.'.format(name_pretty, mac), error=True, sd_notify=True)
+        print_line('Failed to retrieve data from Mi Flora sensor "{}" ({}) during initial connection.'.format(name_pretty, mac), error=True, sd_notify=True)
     else:
         print('Internal name: "{}"'.format(name_clean))
         print('Device name:   "{}"'.format(flora_poller.name()))

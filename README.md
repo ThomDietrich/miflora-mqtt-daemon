@@ -85,11 +85,6 @@ A first test run is as easy as:
 python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py
 ```
 
-**⚠️️ Attention:
-Please ensure a good communication link to all Mi Floras.
-Sensors that can not be reached during the initital communication testing phase will be ignored.
-To evaluate connection reliability execute the program in from the command line at least once and pay attention to reported communication problems.**
-
 With a correct configuration the result should look similar to the the screencap above.
 Pay attention to communication errors due to distance related weak BLE connections.
 
@@ -171,7 +166,7 @@ The function is finished but not yet available in the stable version. Please con
 > *Xiaomi* and *Mi Flora* are registered trademarks of *BEIJING XIAOMI TECHNOLOGY CO., LTD.*
 > 
 > This project is a community project not for commercial use.
-> The authors will not be held responsible in the event of device failure or other damages. 
+> The authors will not be held responsible in the event of device failure or withered plants.
 > 
 > This project is in no way affiliated with, authorized, maintained, sponsored or endorsed by *Xiaomi* or any of its affiliates or subsidiaries.
 
