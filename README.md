@@ -10,7 +10,7 @@ The program can be executed for a single run or in **daemon mode** to run contin
 
 ## Features
 
-* Support for [Xiaomi](https://xiaomi-mi.com/sockets-and-sensors/xiaomi-huahuacaocao-flower-care-smart-monitor) [Mi Flora sensors](https://www.aliexpress.com/item/Newest-Original-Xiaomi-Flora-Monitor-Digital-Plants-Flowers-Soil-Water-Light-Tester-Sensor-Monitor-for-Aquarium/32685750372.html) (tested with firmware v2.6.2, v2.6.4, v2.6.6, v3.1.4, others anticipated)
+* Support for [Xiaomi Mi Flora sensors](https://xiaomi-mi.com/sockets-and-sensors/xiaomi-huahuacaocao-flower-care-smart-monitor) ([e.g. 12-17€](https://www.aliexpress.com/wholesale?SearchText=xiaomi+mi+flora+plant+sensor) (tested with firmware v2.6.2, v2.6.4, v2.6.6, v3.1.4, others anticipated)
 * Build on top of [open-homeautomation/miflora](https://github.com/open-homeautomation/miflora)
 * Highly configurable
 * Data publication via MQTT
