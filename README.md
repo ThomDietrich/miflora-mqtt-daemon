@@ -6,7 +6,7 @@ After data made the hop to the MQTT broker it can be used by home automation sof
 
 ![Demo gif for command line execution](demo.gif)
 
-The program can be executed for a single run or in **daemon mode** to run continuously in the background.
+The program can be executed in **daemon mode** to run continuously in the background, e.g., as a systemd service.
 
 ## Features
 
@@ -15,15 +15,16 @@ The program can be executed for a single run or in **daemon mode** to run contin
 * Build on top of [open-homeautomation/miflora](https://github.com/open-homeautomation/miflora)
 * Highly configurable
 * Data publication via MQTT
-* JSON encoded or following the [Homie Convention](https://github.com/marvinroger/homie)
+* JSON encoded or following the [Homie Convention v2.0.5](https://github.com/marvinroger/homie)
 * Announcement messages to support auto-discovery services
 * MQTT authentication support
+* No special/root privileges needed
 * Daemon mode (default)
 * Systemd service, sd\_notify messages generated
 * MQTT-less mode, printing data directly to stdout/file
 * Automatic generation of openHAB items and rules
 * Reliable and intuitive
-* Tested on Raspberry Pi 3 and 0W
+* Tested on Raspberry Pi 3 and Raspberry Pi 0W
 
 ![Promotional image](https://xiaomi-mi.com/uploads/ck/xiaomi-flower-monitor-001.jpg)
 
@@ -69,6 +70,7 @@ gatttool --help
 ## Configuration
 
 To match personal needs, all operation details can be configured using the file [`config.ini`](config.ini.dist).
+The file needs to be created first:
 
 ```shell
 cp /opt/miflora-mqtt-daemon/config.{ini.bak,ini}
