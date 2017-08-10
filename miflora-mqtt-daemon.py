@@ -94,7 +94,7 @@ def flores_to_openhab_items(flores, reporting_mode):
 # Load configuration file
 config = ConfigParser(delimiters=('=', ))
 config.optionxform = str
-config.read([os.path.join(sys.path[0], 'config.ini'), os.path.join(sys.path[0], 'config.local.ini')])
+config.read([os.path.join(sys.path[0], 'config.ini.dist'), os.path.join(sys.path[0], 'config.ini')])
 
 reporting_mode = config['General'].get('reporting_method', 'mqtt-json')
 daemon_enabled = config['Daemon'].getboolean('enabled', True)

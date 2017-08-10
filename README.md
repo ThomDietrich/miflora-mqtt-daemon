@@ -59,11 +59,19 @@ cd /opt/miflora-mqtt-daemon
 sudo pip3 install -r requirements.txt
 ```
 
-## Configuration
-
-To match personal needs, all operation details can be configured using the file [`config.ini`](config.ini).
+The daemon depends on `gatttool`, an external tool provided by the package `bluez` installed just now.
+Make sure gatttool is available on your system by executing the command once:
 
 ```shell
+gatttool --help
+```
+
+## Configuration
+
+To match personal needs, all operation details can be configured using the file [`config.ini`](config.ini.dist).
+
+```shell
+cp /opt/miflora-mqtt-daemon/config.{ini.bak,ini}
 vim /opt/miflora-mqtt-daemon/config.ini
 ```
 
