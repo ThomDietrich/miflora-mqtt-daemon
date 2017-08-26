@@ -73,7 +73,7 @@ To match personal needs, all operation details can be configured using the file 
 The file needs to be created first:
 
 ```shell
-cp /opt/miflora-mqtt-daemon/config.{ini.bak,ini}
+cp /opt/miflora-mqtt-daemon/config.{ini.dist,ini}
 vim /opt/miflora-mqtt-daemon/config.ini
 ```
 
