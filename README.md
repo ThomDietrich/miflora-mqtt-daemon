@@ -147,6 +147,13 @@ Enjoy!
 
 ### openHAB
 
+To make further processing of the sensor readings as easy as possible, the program has an integrated generator for openHAB Items definitions.
+To generate a complete listing of Items, which you can then copy and adapt to your openHAB setup, execute:
+
+```shell
+python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py --gen-openhab
+```
+
 The following code snippet shows a simple example of how a Mi Flora openHAB Items file could look like for the above example:
 
 ```java
@@ -166,9 +173,6 @@ Number Balcony_Petunia_Moisture "Balcony Petunia Soil Moisture [%d %%]" <text> (
 Number Balcony_Petunia_Conductivity "Balcony Petunia Soil Conductivity/Fertility [%d µS/cm]" <text> (gBalcony, gConductivity) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.conductivity)]"}
 Number Balcony_Petunia_Light "Balcony Petunia Sunlight Intensity [%d lux]" <text> (gBalcony, gLight) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.light)]"}
 ```
-
-The daemon includes a function to generate these items definitions for you!
-The function is finished but not yet available in the stable version. Please contact me for details.
 
 ----
 
