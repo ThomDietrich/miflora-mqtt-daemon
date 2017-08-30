@@ -6,6 +6,7 @@ import json
 import os.path
 import argparse
 from time import sleep, localtime, strftime
+from collections import OrderedDict
 from colorama import init as colorama_init
 from colorama import Fore, Back, Style
 from configparser import ConfigParser
@@ -17,11 +18,13 @@ import sdnotify
 project_name = 'Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon'
 project_url = 'https://github.com/ThomDietrich/miflora-mqtt-daemon'
 
-parameters = {MI_BATTERY: dict(name_pretty='Sensor Battery Level', typeformat='%d', unit='%'),
-              MI_CONDUCTIVITY: dict(name_pretty='Soil Conductivity/Fertility', typeformat='%d', unit='µS/cm'),
-              MI_LIGHT: dict(name_pretty='Sunlight Intensity', typeformat='%d', unit='lux'),
-              MI_MOISTURE: dict(name_pretty='Soil Moisture', typeformat='%d', unit='%'),
-              MI_TEMPERATURE: dict(name_pretty='Air Temperature', typeformat='%.1f', unit='°C')}
+parameters = OrderedDict([
+    (MI_LIGHT, dict(name="LightIntensity", name_pretty='Sunlight Intensity', typeformat='%d', unit='lux')),
+    (MI_TEMPERATURE, dict(name="AirTemperature", name_pretty='Air Temperature', typeformat='%.1f', unit='°C')),
+    (MI_MOISTURE, dict(name="SoilMoisture", name_pretty='Soil Moisture', typeformat='%d', unit='%')),
+    (MI_CONDUCTIVITY, dict(name="SoilConductivity", name_pretty='Soil Conductivity/Fertility', typeformat='%d', unit='µS/cm')),
+    (MI_BATTERY, dict(name="Battery", name_pretty='Sensor Battery Level', typeformat='%d', unit='%'))
+])
 
 if False:
     # will be caught by python 2.7 to be illegal syntax
@@ -91,16 +94,16 @@ def flores_to_openhab_items(flores, reporting_mode):
     items.append('// Mi Flora specific groups')
     items.append('Group gMiFlora "All Mi Flora sensors and elements" (gAll)')
     for param, param_properties in parameters.items():
-        items.append('Group g{} "Mi Flora {} elements" (gAll, gMiFlora)'.format(param.capitalize(), param_properties['name_pretty']))
+        items.append('Group g{} "Mi Flora {} elements" (gAll, gMiFlora)'.format(param_properties['name'], param_properties['name_pretty']))
     if reporting_mode == 'mqtt-json':
         for [flora_name, flora] in flores.items():
             location = flora['location_clean'] if flora['location_clean'] else 'UnknownRoom'
             items.append('\n// Mi Flora "{}" ({})'.format(flora['name_pretty'], flora['mac']))
             items.append('Group g{}{} "Mi Flora Sensor {}" (gMiFlora, g{})'.format(location, flora_name, flora['name_pretty'], location))
             for [param, param_properties] in parameters.items():
-                basic = 'Number {}_{}_{}'.format(location, flora_name, param.capitalize())
+                basic = 'Number {}_{}_{}'.format(location, flora_name, param_properties['name'])
                 label = '"{} {} {} [{} {}]"'.format(location, flora['name_pretty'], param_properties['name_pretty'], param_properties['typeformat'], param_properties['unit'].replace('%', '%%'))
-                details = '<text> (g{}{}, g{})'.format(location, flora_name, param.capitalize())
+                details = '<text> (g{}{}, g{})'.format(location, flora_name, param_properties['name'])
                 channel = '{{mqtt="<[broker:{}/{}:state:JSONPATH($.{})]"}}'.format(base_topic, flora_name, param)
                 items.append(' '.join([basic, label, details, channel]))
         items.append('')
@@ -158,7 +161,7 @@ if reporting_mode in ['mqtt-json', 'mqtt-homie']:
 sd_notifier.notify('READY=1')
 
 # Initialize Mi Flora sensors
-flores = dict()
+flores = OrderedDict()
 for [name, mac] in config['Sensors'].items():
     if not re.match("C4:7C:8D:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}", mac):
         print_line('The MAC address "{}" seems to be in the wrong format. Please check your configuration'.format(mac), error=True, sd_notify=True)
