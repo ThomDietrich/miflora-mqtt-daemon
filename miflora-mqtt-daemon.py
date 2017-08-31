@@ -119,6 +119,7 @@ config.optionxform = str
 config.read([os.path.join(sys.path[0], 'config.ini.dist'), os.path.join(sys.path[0], 'config.ini')])
 
 reporting_mode = config['General'].get('reporting_method', 'mqtt-json')
+used_adapter = config['General'].get('adapter', 'hci0')
 daemon_enabled = config['Daemon'].getboolean('enabled', True)
 base_topic = config['MQTT'].get('base_topic', 'homie' if reporting_mode == 'mqtt-homie' else 'miflora').lower()
 device_id = config['MQTT'].get('homie_device_id', 'miflora-mqtt-daemon').lower()
@@ -179,7 +180,7 @@ for [name, mac] in config['Sensors'].items():
     print('Name:          "{}"'.format(name_pretty))
     #print_line('Attempting initial connection to Mi Flora sensor "{}" ({})'.format(name_pretty, mac), console=False, sd_notify=True)
 
-    flora_poller = MiFloraPoller(mac=mac, cache_timeout=miflora_cache_timeout, retries=3)
+    flora_poller = MiFloraPoller(mac=mac, cache_timeout=miflora_cache_timeout, retries=3, adapter=used_adapter)
     flora['poller'] = flora_poller
     flora['name_pretty'] = name_pretty
     flora['mac'] = flora_poller._mac

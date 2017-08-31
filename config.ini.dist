@@ -12,6 +12,9 @@
 #         json - Print to stdout as json encoded string
 #reporting_method = mqtt-json
 
+# The bluetooth adapter that should be used to connect to Mi Flora devices (Default: hci0)
+#adapter = hci0
+
 [Daemon]
 
 # Enable or Disable an endless execution loop (Default: true)
