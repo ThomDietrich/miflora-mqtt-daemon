@@ -5,6 +5,7 @@ import re
 import json
 import os.path
 import argparse
+import time
 from time import sleep, localtime, strftime
 from collections import OrderedDict
 from colorama import init as colorama_init
@@ -127,7 +128,7 @@ sleep_period = config['Daemon'].getint('period', 300)
 miflora_cache_timeout = sleep_period - 1
 
 # Check configuration
-if not reporting_mode in ['mqtt-json', 'mqtt-homie', 'json']:
+if not reporting_mode in ['mqtt-json', 'mqtt-homie', 'json', 'mqtt-smarthome']:
     print_line('Configuration parameter reporting_mode set to an invalid value', error=True, sd_notify=True)
     sys.exit(1)
 if not config['Sensors']:
@@ -137,7 +138,7 @@ if not config['Sensors']:
 print_line('Configuration accepted', console=False, sd_notify=True)
 
 # MQTT connection
-if reporting_mode in ['mqtt-json', 'mqtt-homie']:
+if reporting_mode in ['mqtt-json', 'mqtt-homie', 'mqtt-smarthome']:
     print_line('Connecting to MQTT broker ...')
     mqtt_client = mqtt.Client()
     mqtt_client.on_connect = on_connect
@@ -146,6 +147,9 @@ if reporting_mode in ['mqtt-json', 'mqtt-homie']:
         mqtt_client.will_set('{}/$announce'.format(base_topic), payload='{}', retain=True)
     elif reporting_mode == 'mqtt-homie':
         mqtt_client.will_set('{}/{}/$online'.format(base_topic, device_id), payload='false', retain=True)
+    elif reporting_mode == 'mqtt-smarthome':
+        mqtt_client.will_set('{}/connected'.format(base_topic), payload='0', retain=True)
+
     if config['MQTT'].get('username'):
         mqtt_client.username_pw_set(config['MQTT'].get('username'), config['MQTT'].get('password', None))
     try:
@@ -156,6 +160,7 @@ if reporting_mode in ['mqtt-json', 'mqtt-homie']:
         print_line('MQTT connection error. Please check your settings in the configuration file "config.ini"', error=True, sd_notify=True)
         sys.exit(1)
     else:
+        mqtt_client.publish('{}/connected'.format(base_topic), payload='1', retain=True)
         mqtt_client.loop_start()
         sleep(1.0) # some slack to establish the connection
 
@@ -279,6 +284,8 @@ while True:
                     print_line('Retrying ...', warning = True)
                 flora['poller']._cache = None
                 flora['poller']._last_read = None
+                if reporting_mode == 'mqtt-smarthome':
+                    mqtt_client.publish('{}/connected'.format(base_topic), payload='1', retain=True)
 
         if not flora['poller']._cache:
             flora['stats']['failure'] = flora['stats']['failure'] + 1
@@ -286,9 +293,13 @@ while True:
                 flora['name_pretty'], flora['mac'], flora['stats']['success']/flora['stats']['count']
                 ), error = True, sd_notify = True)
             print()
+            if reporting_mode == 'mqtt-smarthome':
+                mqtt_client.publish('{}/connected'.format(base_topic), payload='1', retain=True)
             continue
         else:
             flora['stats']['success'] = flora['stats']['success'] + 1
+            if reporting_mode == 'mqtt-smarthome':
+                mqtt_client.publish('{}/connected'.format(base_topic), payload='2', retain=True)
 
         for param,_ in parameters.items():
             data[param] = flora['poller'].parameter_value(param)
@@ -303,6 +314,14 @@ while True:
             for [param, value] in data.items():
                 mqtt_client.publish('{}/{}/{}/{}'.format(base_topic, device_id, flora_name, param), value, 1, False)
             sleep(0.5) # some slack for the publish roundtrip and callback function
+        elif reporting_mode == 'mqtt-smarthome':
+            for [param, value] in data.items():
+                print_line('Publishing data to MQTT topic "{}/status/{}/{}"'.format(base_topic, flora_name, param))
+                payload = dict()
+                payload['val'] = value
+                payload['ts'] = int(round(time.time() * 1000))
+                mqtt_client.publish('{}/status/{}/{}'.format(base_topic, flora_name, param), json.dumps(payload), retain=True)
+            sleep(0.5)  # some slack for the publish roundtrip and callback function
         elif reporting_mode == 'json':
             data['timestamp'] = strftime('%Y-%m-%d %H:%M:%S', localtime())
             data['name'] = flora_name
