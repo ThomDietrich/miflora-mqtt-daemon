@@ -5,8 +5,7 @@ import re
 import json
 import os.path
 import argparse
-import time
-from time import sleep, localtime, strftime
+from time import time, sleep, localtime, strftime
 from collections import OrderedDict
 from colorama import init as colorama_init
 from colorama import Fore, Back, Style
@@ -160,7 +159,8 @@ if reporting_mode in ['mqtt-json', 'mqtt-homie', 'mqtt-smarthome']:
         print_line('MQTT connection error. Please check your settings in the configuration file "config.ini"', error=True, sd_notify=True)
         sys.exit(1)
     else:
-        mqtt_client.publish('{}/connected'.format(base_topic), payload='1', retain=True)
+        if reporting_mode == 'mqtt-smarthome':
+            mqtt_client.publish('{}/connected'.format(base_topic), payload='1', retain=True)
         mqtt_client.loop_start()
         sleep(1.0) # some slack to establish the connection
 
@@ -284,8 +284,6 @@ while True:
                     print_line('Retrying ...', warning = True)
                 flora['poller']._cache = None
                 flora['poller']._last_read = None
-                if reporting_mode == 'mqtt-smarthome':
-                    mqtt_client.publish('{}/connected'.format(base_topic), payload='1', retain=True)
 
         if not flora['poller']._cache:
             flora['stats']['failure'] = flora['stats']['failure'] + 1
@@ -293,13 +291,9 @@ while True:
                 flora['name_pretty'], flora['mac'], flora['stats']['success']/flora['stats']['count']
                 ), error = True, sd_notify = True)
             print()
-            if reporting_mode == 'mqtt-smarthome':
-                mqtt_client.publish('{}/connected'.format(base_topic), payload='1', retain=True)
             continue
         else:
             flora['stats']['success'] = flora['stats']['success'] + 1
-            if reporting_mode == 'mqtt-smarthome':
-                mqtt_client.publish('{}/connected'.format(base_topic), payload='2', retain=True)
 
         for param,_ in parameters.items():
             data[param] = flora['poller'].parameter_value(param)
@@ -319,7 +313,7 @@ while True:
                 print_line('Publishing data to MQTT topic "{}/status/{}/{}"'.format(base_topic, flora_name, param))
                 payload = dict()
                 payload['val'] = value
-                payload['ts'] = int(round(time.time() * 1000))
+                payload['ts'] = int(round(time() * 1000))
                 mqtt_client.publish('{}/status/{}/{}'.format(base_topic, flora_name, param), json.dumps(payload), retain=True)
             sleep(0.5)  # some slack for the publish roundtrip and callback function
         elif reporting_mode == 'json':
@@ -344,4 +338,3 @@ while True:
         if reporting_mode == 'mqtt-json':
             mqtt_client.disconnect()
         break
-
