@@ -37,7 +37,7 @@
 #keepalive = 60
 
 # The MQTT base topic to publish all Mi Flora sensor data topics under.
-# Default depends on the configured reporting_mode (mqtt-json: miflora, mqtt-homie: homie)
+# Default depends on the configured reporting_mode (mqtt-json, mqtt-smarthome: miflora, mqtt-homie: homie)
 #base_topic = miflora
 #base_topic = homie
 

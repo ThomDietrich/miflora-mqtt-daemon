@@ -15,7 +15,10 @@ The program can be executed in **daemon mode** to run continuously in the backgr
 * Build on top of [open-homeautomation/miflora](https://github.com/open-homeautomation/miflora)
 * Highly configurable
 * Data publication via MQTT
-* JSON encoded or following the [Homie Convention v2.0.5](https://github.com/marvinroger/homie)
+* Configurable topic and payload:
+    * JSON encoded
+    * following the [Homie Convention v2.0.5](https://github.com/marvinroger/homie)
+    * following the [mqtt-smarthome architecture proposal](https://github.com/mqtt-smarthome/mqtt-smarthome)
 * Announcement messages to support auto-discovery services
 * MQTT authentication support
 * No special/root privileges needed
