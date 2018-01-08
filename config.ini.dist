@@ -30,7 +30,7 @@
 # The hostname or IP address of the MQTT broker to connect to (Default: localhost)
 #hostname = localhost
 
-# The TCP port the MQTT broker is listening on. SSL/TLS currently not implemented (Default: 1883)
+# The TCP port the MQTT broker is listening on (Default: 1883)
 #port = 1883
 
 # Maximum period in seconds between ping messages to the broker. (Default: 60)
@@ -47,6 +47,18 @@
 # The MQTT broker authentification credentials (Default: no authentication)
 #username = user
 #password = pwd123
+
+# Enable TLS/SSL on the connection
+#tls = false
+
+# Path to CA Certificate file to verify host
+#tls_ca_cert =
+
+# Path to TLS client auth key file
+#tls_keyfile =
+
+# Path to TLS client auth certificate file
+#tls_certfile =
 
 [Sensors]
 
