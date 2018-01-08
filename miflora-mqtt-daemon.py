@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import ssl
 import sys
 import re
 import json
@@ -148,6 +149,17 @@ if reporting_mode in ['mqtt-json', 'mqtt-homie', 'mqtt-smarthome']:
         mqtt_client.will_set('{}/{}/$online'.format(base_topic, device_id), payload='false', retain=True)
     elif reporting_mode == 'mqtt-smarthome':
         mqtt_client.will_set('{}/connected'.format(base_topic), payload='0', retain=True)
+
+    if config['MQTT'].get('tls', False):
+        # According to the docs, setting PROTOCOL_SSLv23 "Selects the highest protocol version
+        # that both the client and server support. Despite the name, this option can select
+        # “TLS” protocols as well as “SSL”" - so this seems like a resonable default
+        mqtt_client.tls_set(
+            ca_certs=config['MQTT'].get('tls_ca_cert', None),
+            keyfile=config['MQTT'].get('tls_keyfile', None),
+            certfile=config['MQTT'].get('tls_certfile', None),
+            tls_version=ssl.PROTOCOL_SSLv23
+        )
 
     if config['MQTT'].get('username'):
         mqtt_client.username_pw_set(config['MQTT'].get('username'), config['MQTT'].get('password', None))
