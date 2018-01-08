@@ -122,13 +122,21 @@ config.read([os.path.join(sys.path[0], 'config.ini.dist'), os.path.join(sys.path
 reporting_mode = config['General'].get('reporting_method', 'mqtt-json')
 used_adapter = config['General'].get('adapter', 'hci0')
 daemon_enabled = config['Daemon'].getboolean('enabled', True)
-base_topic = config['MQTT'].get('base_topic', 'homie' if reporting_mode == 'mqtt-homie' else 'miflora').lower()
+
+if reporting_mode == 'mqtt-homie':
+    default_base_topic = 'homie'
+elif reporting_mode == 'homeassistant-mqtt':
+    default_base_topic = 'homeassistant'
+else:
+    default_base_topic = 'miflora'
+
+base_topic = config['MQTT'].get('base_topic', default_base_topic).lower()
 device_id = config['MQTT'].get('homie_device_id', 'miflora-mqtt-daemon').lower()
 sleep_period = config['Daemon'].getint('period', 300)
 miflora_cache_timeout = sleep_period - 1
 
 # Check configuration
-if not reporting_mode in ['mqtt-json', 'mqtt-homie', 'json', 'mqtt-smarthome']:
+if reporting_mode not in ['mqtt-json', 'mqtt-homie', 'json', 'mqtt-smarthome', 'homeassistant-mqtt']:
     print_line('Configuration parameter reporting_mode set to an invalid value', error=True, sd_notify=True)
     sys.exit(1)
 if not config['Sensors']:
@@ -138,7 +146,7 @@ if not config['Sensors']:
 print_line('Configuration accepted', console=False, sd_notify=True)
 
 # MQTT connection
-if reporting_mode in ['mqtt-json', 'mqtt-homie', 'mqtt-smarthome']:
+if reporting_mode in ['mqtt-json', 'mqtt-homie', 'mqtt-smarthome', 'homeassistant-mqtt']:
     print_line('Connecting to MQTT broker ...')
     mqtt_client = mqtt.Client()
     mqtt_client.on_connect = on_connect
@@ -273,6 +281,20 @@ elif reporting_mode == 'mqtt-homie':
         mqtt_client.publish('{}/temperature/$range'.format(topic_path), '*', 1, True)
     sleep(0.5) # some slack for the publish roundtrip and callback function
     print()
+elif reporting_mode == 'homeassistant-mqtt':
+    print_line('Announcing Mi Flora devices to MQTT broker for auto-discovery ...')
+    for [flora_name, flora] in flores.items():
+        topic_path = '{}/sensor/{}'.format(base_topic, flora_name)
+        base_payload = {
+            "device_class": "sensor",
+            "state_topic": "{}/state".format(topic_path).lower()
+        }
+        for sensor, params in parameters.items():
+            payload = dict(base_payload.items())
+            payload['unit_of_measurement'] = params['unit']
+            payload['value_template'] = "{{ value_json.%s }}" % (sensor, )
+            payload['name'] = "{} {}".format(flora_name, sensor.title())
+            mqtt_client.publish('{}/{}_{}/config'.format(topic_path, flora_name, sensor).lower(), json.dumps(payload), 1, True)
 
 print_line('Initialization complete, starting MQTT publish loop', console=False, sd_notify=True)
 
@@ -314,6 +336,10 @@ while True:
         if reporting_mode == 'mqtt-json':
             print_line('Publishing to MQTT topic "{}/{}"'.format(base_topic, flora_name))
             mqtt_client.publish('{}/{}'.format(base_topic, flora_name), json.dumps(data))
+            sleep(0.5) # some slack for the publish roundtrip and callback function
+        elif reporting_mode == 'homeassistant-mqtt':
+            print_line('Publishing to MQTT topic "{}/sensor/{}/state"'.format(base_topic, flora_name).lower())
+            mqtt_client.publish('{}/sensor/{}/state'.format(base_topic, flora_name).lower(), json.dumps(data))
             sleep(0.5) # some slack for the publish roundtrip and callback function
         elif reporting_mode == 'mqtt-homie':
             print_line('Publishing data to MQTT base topic "{}/{}/{}"'.format(base_topic, device_id, flora_name))

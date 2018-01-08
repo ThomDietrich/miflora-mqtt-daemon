@@ -19,6 +19,7 @@ The program can be executed in **daemon mode** to run continuously in the backgr
     * JSON encoded
     * following the [Homie Convention v2.0.5](https://github.com/marvinroger/homie)
     * following the [mqtt-smarthome architecture proposal](https://github.com/mqtt-smarthome/mqtt-smarthome)
+	* using the [HomeAssistant MQTT discovery format](https://home-assistant.io/docs/mqtt/discovery/)
 * Announcement messages to support auto-discovery services
 * MQTT authentication support
 * No special/root privileges needed
