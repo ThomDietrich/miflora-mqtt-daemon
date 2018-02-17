@@ -12,6 +12,7 @@ from colorama import init as colorama_init
 from colorama import Fore, Back, Style
 from configparser import ConfigParser
 from unidecode import unidecode
+from miflora import BluepyBackend
 from miflora.miflora_poller import MiFloraPoller, MI_BATTERY, MI_CONDUCTIVITY, MI_LIGHT, MI_MOISTURE, MI_TEMPERATURE
 import paho.mqtt.client as mqtt
 import sdnotify
@@ -205,7 +206,7 @@ for [name, mac] in config['Sensors'].items():
     print('Name:          "{}"'.format(name_pretty))
     #print_line('Attempting initial connection to Mi Flora sensor "{}" ({})'.format(name_pretty, mac), console=False, sd_notify=True)
 
-    flora_poller = MiFloraPoller(mac=mac, cache_timeout=miflora_cache_timeout, retries=3, adapter=used_adapter)
+    flora_poller = MiFloraPoller(mac=mac, cache_timeout=miflora_cache_timeout, retries=3, adapter=used_adapter, backend=BluepyBackend)
     flora['poller'] = flora_poller
     flora['name_pretty'] = name_pretty
     flora['mac'] = flora_poller._mac
