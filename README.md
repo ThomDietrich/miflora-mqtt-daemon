@@ -7,10 +7,16 @@ After data made the hop to the MQTT broker it can be used by home automation sof
 ![Demo gif for command line execution](demo.gif)
 
 The program can be executed in **daemon mode** to run continuously in the background, e.g., as a systemd service.
+## Miflora sensor
+* Support for [Xiaomi Mi Flora sensors](https://xiaomi-mi.com/sockets-and-sensors/xiaomi-huahuacaocao-flower-care-smart-monitor) ([e.g. 12-17€](https://www.aliexpress.com/wholesale?SearchText=xiaomi+mi+flora+plant+sensor))
+* The sensor are meant to keep your plants alive by monitoring Soil moisture, Soil Conductivity and Light conditions
+* The sensors uses BLE and broadcast it every 30s
+* These sensors have runs of coin cell battery and this battery under normal cndition last between 1.5 to 2 years
+* Sensor can also be used for other things than plants, see https://community.openhab.org/t/miflora-cheap-window-and-door-sensor-water-sensor-blind-sensor-etc/38232
+
 
 ## Features
 
-* Support for [Xiaomi Mi Flora sensors](https://xiaomi-mi.com/sockets-and-sensors/xiaomi-huahuacaocao-flower-care-smart-monitor) ([e.g. 12-17€](https://www.aliexpress.com/wholesale?SearchText=xiaomi+mi+flora+plant+sensor))
 * Tested with Mi Flora firmware v2.6.2, v2.6.4, v2.6.6, v3.1.4, others anticipated
 * Build on top of [open-homeautomation/miflora](https://github.com/open-homeautomation/miflora)
 * Highly configurable
@@ -29,6 +35,7 @@ The program can be executed in **daemon mode** to run continuously in the backgr
 * Automatic generation of openHAB items and rules
 * Reliable and intuitive
 * Tested on Raspberry Pi 3 and Raspberry Pi 0W
+
 
 ![Promotional image](https://xiaomi-mi.com/uploads/ck/xiaomi-flower-monitor-001.jpg)
 
