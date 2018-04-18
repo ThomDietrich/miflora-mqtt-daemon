@@ -12,6 +12,7 @@ ExecStart=/opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py
 StandardOutput=null
 StandardError=journal
 Environment=PYTHONUNBUFFERED=true
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
