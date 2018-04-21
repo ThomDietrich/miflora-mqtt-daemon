@@ -13,7 +13,7 @@ from colorama import Fore, Back, Style
 from configparser import ConfigParser
 from unidecode import unidecode
 from miflora.miflora_poller import MiFloraPoller, MI_BATTERY, MI_CONDUCTIVITY, MI_LIGHT, MI_MOISTURE, MI_TEMPERATURE
-from miflora.backends.gatttool import GatttoolBackend
+from btlewrap import available_backends, BluepyBackend, GatttoolBackend, PygattBackend
 import paho.mqtt.client as mqtt
 import sdnotify
 
