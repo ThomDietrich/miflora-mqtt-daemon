@@ -103,6 +103,12 @@ python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py
 With a correct configuration the result should look similar to the the screencap above.
 Pay attention to communication errors due to distance related weak BLE connections.
 
+Using the command line argument `--config`, a directory where to read the config.ini file from can be specified, e.g.
+
+```shell
+python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py --config /opt/miflora-config
+```
+
 The extensive output can be reduced to error messages:
 
 ```shell
@@ -134,6 +140,28 @@ This can be done either by using the internal daemon or cron.
    ```shell
    screen -S miflora-mqtt-daemon -d -m python3 /path/to/miflora-mqtt-daemon.py
    ```
+
+## Usage with Docker
+
+A Dockerfile in the repository can be used to build a docker container from the sources with a command such as:
+
+```shell
+docker build -t miflora-mqtt-daemon .
+```
+
+Running the container in interactive mode works like this:
+
+```shell
+docker run -it --name miflora-mqtt-daemon -v /opt/config/:/config miflora-mqtt-daemon
+```
+
+To run the container in daemon mode use `-d` flag:
+
+```shell
+docker run -d --name miflora-mqtt-daemon -v /opt/config/:/config miflora-mqtt-daemon
+```
+
+The `/config` volume can be used to provide a directory on the host which contains the config.ini file (e.g. `/opt/config` in the above command). You may need to tweak the network settings (e.g. `--network host`) for Docker depending on how your system is set up.
 
 ## Integration
 
