@@ -152,13 +152,13 @@ docker build -t miflora-mqtt-daemon .
 Running the container in interactive mode works like this:
 
 ```shell
-docker run -it --name miflora-mqtt-daemon -v /opt/config/:/config miflora-mqtt-daemon
+docker run -it --name miflora-mqtt-daemon -v .:/config miflora-mqtt-daemon
 ```
 
 To run the container in daemon mode use `-d` flag:
 
 ```shell
-docker run -d --name miflora-mqtt-daemon -v /opt/config/:/config miflora-mqtt-daemon
+docker run -d --name miflora-mqtt-daemon -v .:/config miflora-mqtt-daemon
 ```
 
 The `/config` volume can be used to provide a directory on the host which contains the config.ini file (e.g. `/opt/config` in the above command). You may need to tweak the network settings (e.g. `--network host`) for Docker depending on how your system is set up.
