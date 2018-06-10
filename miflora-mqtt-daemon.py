@@ -13,7 +13,7 @@ from colorama import Fore, Back, Style
 from configparser import ConfigParser
 from unidecode import unidecode
 from miflora.miflora_poller import MiFloraPoller, MI_BATTERY, MI_CONDUCTIVITY, MI_LIGHT, MI_MOISTURE, MI_TEMPERATURE
-from btlewrap import available_backends, BluepyBackend, GatttoolBackend, PygattBackend
+from btlewrap import available_backends, BluepyBackend, GatttoolBackend, PygattBackend, BluetoothBackendException
 import paho.mqtt.client as mqtt
 import sdnotify
 
@@ -218,7 +218,7 @@ for [name, mac] in config['Sensors'].items():
         flora_poller.fill_cache()
         flora_poller.parameter_value(MI_LIGHT)
         flora['firmware'] = flora_poller.firmware_version()
-    except IOError:
+    except (IOError, BluetoothBackendException):
         print_line('Initial connection to Mi Flora sensor "{}" ({}) failed.'.format(name_pretty, mac), error=True, sd_notify=True)
     else:
         print('Internal name: "{}"'.format(name_clean))
@@ -314,7 +314,7 @@ while True:
             try:
                 flora['poller'].fill_cache()
                 flora['poller'].parameter_value(MI_LIGHT)
-            except IOError:
+            except (IOError, BluetoothBackendException):
                 attempts = attempts - 1
                 if attempts > 0:
                     print_line('Retrying ...', warning = True)
