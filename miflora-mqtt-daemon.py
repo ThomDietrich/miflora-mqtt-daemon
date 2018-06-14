@@ -159,7 +159,7 @@ if reporting_mode in ['mqtt-json', 'mqtt-homie', 'mqtt-smarthome', 'homeassistan
     elif reporting_mode == 'mqtt-smarthome':
         mqtt_client.will_set('{}/connected'.format(base_topic), payload='0', retain=True)
 
-    if config['MQTT'].get('tls', False):
+    if config['MQTT'].getboolean('tls', False):
         # According to the docs, setting PROTOCOL_SSLv23 "Selects the highest protocol version
         # that both the client and server support. Despite the name, this option can select
         # “TLS” protocols as well as “SSL”" - so this seems like a resonable default
