@@ -35,6 +35,7 @@ if False:
 # Argparse
 parser = argparse.ArgumentParser(description=project_name, epilog='For further details see: ' + project_url)
 parser.add_argument('--gen-openhab', help='generate openHAB items based on configured sensors', action='store_true')
+parser.add_argument('--config_dir', help='set directory where config.ini is located', default=sys.path[0])
 parse_args = parser.parse_args()
 
 # Intro
@@ -116,9 +117,11 @@ def flores_to_openhab_items(flores, reporting_mode):
 
 
 # Load configuration file
+config_dir = parse_args.config_dir
+
 config = ConfigParser(delimiters=('=', ))
 config.optionxform = str
-config.read([os.path.join(sys.path[0], 'config.ini.dist'), os.path.join(sys.path[0], 'config.ini')])
+config.read([os.path.join(config_dir, 'config.ini.dist'), os.path.join(config_dir, 'config.ini')])
 
 reporting_mode = config['General'].get('reporting_method', 'mqtt-json')
 used_adapter = config['General'].get('adapter', 'hci0')
