@@ -7,12 +7,16 @@
 
 # The operation mode of the program. Determines wether retrieved sensor data is published via MQTT or stdout/file.
 # Currently supported:
-#          mqtt-json - Publish to an mqtt broker, json encoded (Default)
-#         mqtt-homie - Publish to an mqtt broker following the Homie MQTT convention (https://github.com/marvinroger/homie)
-#     mqtt-smarthome - Publish to an mqtt broker following the mqtt-smarthome proposal
-#                      (https://github.com/mqtt-smarthome/mqtt-smarthome)
-#               json - Print to stdout as json encoded string
-# homeassistant-mqtt - Publish to mqtt broker following the conventions for MQTT discovery (https://www.home-assistant.io/docs/mqtt/discovery/)
+#
+#           mqtt-json - Publish to an MQTT broker in a proprietary json format (Default)
+#          mqtt-homie - Publish to an MQTT broker following the Homie MQTT convention 
+#                       (https://github.com/marvinroger/homie)
+#      mqtt-smarthome - Publish to an MQTT broker following the mqtt-smarthome proposal
+#                       (https://github.com/mqtt-smarthome/mqtt-smarthome)
+#  homeassistant-mqtt - Publish to an MQTT broker following the HomeAssistant discovery format
+#                       (https://www.home-assistant.io/docs/mqtt/discovery/)
+#                json - Print to stdout as json encoded strings
+#
 #reporting_method = mqtt-json
 
 # The bluetooth adapter that should be used to connect to Mi Flora devices (Default: hci0)
