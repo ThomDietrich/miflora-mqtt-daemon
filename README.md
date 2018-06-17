@@ -9,11 +9,10 @@ After data made the hop to the MQTT broker it can be used by home automation sof
 The program can be executed in **daemon mode** to run continuously in the background, e.g., as a systemd service.
 
 ## About Mi Flora
-* Support for [Xiaomi Mi Flora sensors](https://xiaomi-mi.com/sockets-and-sensors/xiaomi-huahuacaocao-flower-care-smart-monitor) ([e.g. 12-17€](https://www.aliexpress.com/wholesale?SearchText=xiaomi+mi+flora+plant+sensor))
-* The sensor are meant to keep your plants alive by monitoring soil moisture, soil conductivity and light conditions
-* The sensors uses BLE and broadcast it every 30s
-* These sensors have runs of coin cell battery and this battery under normal condition last between 1.5 to 2 years
-* Sensor can also be used for other things than plants, see https://community.openhab.org/t/miflora-cheap-window-and-door-sensor-water-sensor-blind-sensor-etc/38232
+* [Xiaomi Mi Flora sensors](https://xiaomi-mi.com/sockets-and-sensors/xiaomi-huahuacaocao-flower-care-smart-monitor) ([e.g. 12-17€](https://www.aliexpress.com/wholesale?SearchText=xiaomi+mi+flora+plant+sensor)) are meant to keep your plants alive by monitoring soil moisture, soil conductivity and light conditions
+* The sensor uses Bluetooth Low Energy (BLE) and has a rather limited range
+* A coin cell battery is used as power source, which should last between 1.5 to 2 years under normal conditions
+* Food for thought: The sensor can also be used for other things than plants, like in the [fridge](https://community.openhab.org/t/refrigerator-temperature-sensors/40076) or as [door and blind sensor](https://community.openhab.org/t/miflora-cheap-window-and-door-sensor-water-sensor-blind-sensor-etc/38232)
 
 ## Features
 
