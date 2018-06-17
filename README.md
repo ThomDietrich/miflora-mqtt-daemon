@@ -161,7 +161,8 @@ To run the container in daemon mode use `-d` flag:
 docker run -d --name miflora-mqtt-daemon -v .:/config miflora-mqtt-daemon
 ```
 
-The `/config` volume can be used to provide a directory on the host which contains the config.ini file (e.g. `/opt/config` in the above command). You may need to tweak the network settings (e.g. `--network host`) for Docker depending on how your system is set up.
+The `/config` volume can be used to provide a directory on the host which contains your `config.ini` file (e.g. the `.` in the above example could represent `/opt/miflora-mqtt-daemon`).
+You may need to tweak the network settings (e.g. `--network host`) for Docker depending on how your system is set up.
 
 ## Integration
 
