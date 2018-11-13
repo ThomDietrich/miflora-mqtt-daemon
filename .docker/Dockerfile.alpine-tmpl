@@ -39,7 +39,7 @@ RUN set -ex \
     && chmod +x /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py \
     && ln -s /opt/miflora-mqtt-daemon/* /usr/local/bin/ \
     && rm -rf /tmp/* \
-    && rm -rf /var/cache/apk/*
+    && rm -rf /var/cache/apk/* \
     && adduser -D -u 1000 miflora \
     && chgrp -Rf root /opt/miflora-mqtt-daemon \
     && chmod -Rf g+w /opt/miflora-mqtt-daemon \
