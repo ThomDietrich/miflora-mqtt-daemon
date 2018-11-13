@@ -30,7 +30,8 @@ COPY ./config.ini.dist /tmp/config.ini.dist
 # Install required packages
 RUN set -ex \
     && apt-get update \
-    && apt-get install -y bluez \
+    && apt-get install -y \
+        bluez \
     && pip install --upgrade pip \
     && pip install --no-cache-dir -r /tmp/requirements.txt \
     && mkdir -p /opt/miflora-mqtt-daemon/config \
