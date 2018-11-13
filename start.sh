@@ -1,8 +1,13 @@
 #!/bin/sh
-if [ ! -f "/opt/miflora-mqtt-daemon/config/config.ini" ]; then
-  echo 'Mi-Flora mqtt config does not exists, create default.'
-  cp /opt/miflora-mqtt-daemon/config/config.ini.dist /opt/miflora-mqtt-daemon/config/config.ini
+if [ ! -d "/config" ]; then
+  echo "/config directory doesn't exists, creating..."
+  mkdir /config
+fi
+
+if [ ! -f "/config/config.ini" ]; then
+  echo 'Mi-Flora mqtt config.ini does not exists, create default'
+  cp -RV /opt/miflora-mqtt-daemon/config.ini.dist /config/config.ini
 fi
 
 # Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon
-python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py --config /opt/miflora-mqtt-daemon/config
+python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py --config /config

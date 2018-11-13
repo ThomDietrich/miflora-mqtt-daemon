@@ -38,7 +38,7 @@ RUN set -ex \
     && mkdir -p /opt/miflora-mqtt-daemon/config \
     && mv /tmp/miflora-mqtt-daemon.py /opt/miflora-mqtt-daemon \
     && mv /tmp/start.sh /opt/miflora-mqtt-daemon \
-    && mv /tmp/config.ini.dist /opt/miflora-mqtt-daemon/config/config.ini.dist \
+    && mv /tmp/config.ini.dist /opt/miflora-mqtt-daemon \
     && chmod +x /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py \
     && chmod +x /opt/miflora-mqtt-daemon/start.sh \
     && ln -s /opt/miflora-mqtt-daemon/* /usr/local/bin/ \
@@ -51,8 +51,8 @@ RUN set -ex \
 WORKDIR /opt/miflora-mqtt-daemon
 
 # Start miflora-mqtt-daemon
-CMD ["/opt/miflora-mqtt-daemon/start.sh"]
+ENTRYPOINT ["/opt/miflora-mqtt-daemon/start.sh"]
 
 USER miflora
 
-VOLUME ["/opt/miflora-mqtt-daemon/config"]
+VOLUME ["/config"]
