@@ -12,7 +12,7 @@ env:
         - QEMU_VERSION=v3.0.0
     matrix:
         - BUILD_FROM=arm32v6/python:3-alpine3.8 QEMU_ARCH=arm OS_ARCH=alpine-arm32v6 DOCKER_FILE=Dockerfile.alpine-tmpl
-        - BUILD_FROM=arm32v7/python:3-slim QEMU_ARCH=arm OS_ARCH=alpine-arm32v7 DOCKER_FILE=Dockerfile.slim-tmpl
+        - BUILD_FROM=arm32v7/python:3-slim QEMU_ARCH=arm OS_ARCH=slim-arm32v7 DOCKER_FILE=Dockerfile.slim-tmpl
         - BUILD_FROM=arm64v8/python:3-alpine3.8 QEMU_ARCH=aarch64 OS_ARCH=alpine-arm64v8 DOCKER_FILE=Dockerfile.alpine-tmpl
 
 before_install:
