@@ -38,6 +38,7 @@ RUN set -ex \
     && mv /tmp/miflora-mqtt-daemon.py /opt/miflora-mqtt-daemon \
     && mv /tmp/start.sh /opt/miflora-mqtt-daemon \
     && chmod +x /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py \
+    && chmod +x /opt/miflora-mqtt-daemon/start.sh \
     && ln -s /opt/miflora-mqtt-daemon/* /usr/local/bin/ \
     && rm -rf /tmp/* \
     && rm -rf /var/cache/apk/* \
@@ -49,7 +50,7 @@ RUN set -ex \
 WORKDIR /opt/miflora-mqtt-daemon
 
 # Start miflora-mqtt-daemon
-CMD ["./start.sh"]
+CMD ["/opt/miflora-mqtt-daemon/start.sh"]
 
 USER miflora
 
