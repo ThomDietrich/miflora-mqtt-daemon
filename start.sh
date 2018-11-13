@@ -5,4 +5,4 @@ if [ ! -f "/opt/miflora-mqtt-daemon/config/config.ini" ]; then
 fi
 
 # Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon
-python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py --config /opt/miflora-config
+python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py --config /opt/miflora-mqtt-daemon/config
