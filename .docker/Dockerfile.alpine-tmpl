@@ -28,7 +28,7 @@ COPY ./miflora-mqtt-daemon.py /tmp/miflora-mqtt-daemon.py
 COPY ./config.ini.dist /tmp/config.ini.dist
 COPY ./start.sh /tmp/start.sh
 
-# Install required packages 
+# Install required packages
 RUN set -ex \
     && apk add --no-cache --virtual .run-deps \
         bluez \
@@ -49,7 +49,7 @@ RUN set -ex \
 WORKDIR /opt/miflora-mqtt-daemon
 
 # Start miflora-mqtt-daemon
-CMD [".start.sh"]
+CMD ["./start.sh"]
 
 USER miflora
 

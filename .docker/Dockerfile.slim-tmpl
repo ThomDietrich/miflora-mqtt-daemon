@@ -49,7 +49,7 @@ RUN set -ex \
 WORKDIR /opt/miflora-mqtt-daemon
 
 # Start miflora-mqtt-daemon
-CMD [".start.sh"]
+CMD ["./start.sh"]
 
 USER miflora
 
