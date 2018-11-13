@@ -1,0 +1,66 @@
+sudo: 'required'
+
+services:
+  - 'docker'
+
+language:
+  - 'bash'
+
+env:
+    global:
+        - TARGET=raymondmm/miflora-mqtt
+        - QEMU_VERSION=v3.0.0
+    matrix:
+        - BUILD_FROM=arm32v6/python:3-alpine3.8 QEMU_ARCH=arm OS_ARCH=alpine-arm32v6 DOCKER_FILE=Dockerfile.alpine-tmpl
+
+before_install:
+  - ./.docker/docker.sh prepare
+
+install: true
+
+before_script:
+    # Set BUILD_VERSION
+    - if [ ! -z "${TRAVIS_TAG}" ]; then export BUILD_VERSION=${TRAVIS_TAG}; else export BUILD_VERSION=v2.3.8; fi
+
+script:
+    # Build Docker image
+    - ./.docker/docker.sh build
+
+    # Test Docker image
+    - ./.docker/docker.sh test
+
+    # Push Docker image (TODO move to function)
+    - >
+      if [ ! -z "${TRAVIS_TAG}" ]; then
+        # Tag Docker image
+        ./.docker/docker.sh tag
+
+        # Docker Login
+        echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+
+        # Push Docker image
+        docker push ${TARGET}:${BUILD_VERSION}-${OS_ARCH}
+
+        # Docker Logout
+        docker logout
+      fi
+
+jobs:
+    include:
+        - stage: manifest
+          if: tag =~ ^v
+          script:
+              # Create and push Docker manifest lists (TODO move to function)
+              # Docker Login
+              - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+              # Create and Push Docker Manifest Lists to Docker Hub
+              - echo "Create manifest list for all docker images."
+              - ./.docker/docker.sh manifest-list
+
+              # Docker Logout
+              - docker logout
+
+# notify me when things fail
+notifications:
+    email: true
