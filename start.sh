@@ -6,7 +6,7 @@ fi
 
 if [ ! -f "/config/config.ini" ]; then
   echo 'Mi-Flora mqtt config.ini does not exists, create default'
-  cp -RV /opt/miflora-mqtt-daemon/config.ini.dist /config/config.ini
+  cp /opt/miflora-mqtt-daemon/config.ini.dist /config/config.ini
 fi
 
 # Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon
