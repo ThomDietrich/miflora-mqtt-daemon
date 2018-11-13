@@ -86,13 +86,13 @@ docker_manifest_list_version() {
   # Manifest Create BUILD_VERSION
   echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${BUILD_VERSION}."
   docker manifest create ${TARGET}:${BUILD_VERSION} \
-      ${TARGET}:${BUILD_VERSION}-alpine-amd64 \
-      ${TARGET}:${BUILD_VERSION}-slim-arm32v7 \
-      ${TARGET}:${BUILD_VERSION}-alpine-arm64v8
+      #${TARGET}:${BUILD_VERSION}-alpine-amd64 \
+      #${TARGET}:${BUILD_VERSION}-slim-arm32v7 \
+      ${TARGET}:${BUILD_VERSION}-alpine-arm32v6
 
   # Manifest Annotate BUILD_VERSION
-  docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-slim-arm32v7 --os=linux --arch=arm --variant=v7
-  docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-alpine-arm64v8 --os=linux --arch=arm64 --variant=v8
+  #docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-slim-arm32v7 --os=linux --arch=arm --variant=v7
+  docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-alpine-arm32v6 --os=linux --arch=arm32 --variant=v6
 
   # Manifest Push BUILD_VERSION
   docker manifest push ${TARGET}:${BUILD_VERSION}
@@ -102,48 +102,48 @@ docker_manifest_list_latest() {
   # Manifest Create latest
   echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:latest."
   docker manifest create ${TARGET}:latest \
-      ${TARGET}:${BUILD_VERSION}-alpine-amd64 \
-      ${TARGET}:${BUILD_VERSION}-slim-arm32v7 \
-      ${TARGET}:${BUILD_VERSION}-alpine-arm64v8
+      # ${TARGET}:${BUILD_VERSION}-alpine-amd64 \
+      # ${TARGET}:${BUILD_VERSION}-slim-arm32v7 \
+      ${TARGET}:${BUILD_VERSION}-alpine-arm32v6
 
   # Manifest Annotate BUILD_VERSION
-  docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-slim-arm32v7 --os=linux --arch=arm --variant=v7
-  docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-alpine-arm64v8 --os=linux --arch=arm64 --variant=v8
+  # docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-slim-arm32v7 --os=linux --arch=arm --variant=v7
+  docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-alpine-arm32v6 --os=linux --arch=arm32 --variant=v6
 
   # Manifest Push BUILD_VERSION
   docker manifest push ${TARGET}:latest
 }
 
 docker_manifest_list_version_os_arch() {
-  # Manifest Create alpine-amd64
-  echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${BUILD_VERSION}-alpine-amd64."
-  docker manifest create ${TARGET}:${BUILD_VERSION}-alpine-amd64 \
-      ${TARGET}:${BUILD_VERSION}-alpine-amd64
+  # # Manifest Create alpine-amd64
+  # echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${BUILD_VERSION}-alpine-amd64."
+  # docker manifest create ${TARGET}:${BUILD_VERSION}-alpine-amd64 \
+  #     ${TARGET}:${BUILD_VERSION}-alpine-amd64
+  #
+  # # Manifest Push alpine-amd64
+  # docker manifest push ${TARGET}:${BUILD_VERSION}-alpine-amd64
+  #
+  # # Manifest Create slim-arm32v7
+  # echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${BUILD_VERSION}-slim-arm32v7."
+  # docker manifest create ${TARGET}:${BUILD_VERSION}-slim-arm32v7 \
+  #     ${TARGET}:${BUILD_VERSION}-slim-arm32v7
+  #
+  # # Manifest Annotate slim-arm32v7
+  # docker manifest annotate ${TARGET}:${BUILD_VERSION}-slim-arm32v7 ${TARGET}:${BUILD_VERSION}-slim-arm32v7 --os=linux --arch=arm --variant=v7
+  #
+  # # Manifest Push slim-arm32v7
+  # docker manifest push ${TARGET}:${BUILD_VERSION}-slim-arm32v7
 
-  # Manifest Push alpine-amd64
-  docker manifest push ${TARGET}:${BUILD_VERSION}-alpine-amd64
-
-  # Manifest Create slim-arm32v7
-  echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${BUILD_VERSION}-slim-arm32v7."
-  docker manifest create ${TARGET}:${BUILD_VERSION}-slim-arm32v7 \
-      ${TARGET}:${BUILD_VERSION}-slim-arm32v7
-
-  # Manifest Annotate slim-arm32v7
-  docker manifest annotate ${TARGET}:${BUILD_VERSION}-slim-arm32v7 ${TARGET}:${BUILD_VERSION}-slim-arm32v7 --os=linux --arch=arm --variant=v7
-
-  # Manifest Push slim-arm32v7
-  docker manifest push ${TARGET}:${BUILD_VERSION}-slim-arm32v7
-
-  # Manifest Create alpine-arm64v8
-  echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${BUILD_VERSION}-alpine-arm64v8."
-  docker manifest create ${TARGET}:${BUILD_VERSION}-alpine-arm64v8 \
-      ${TARGET}:${BUILD_VERSION}-alpine-arm64v8
-
-  # Manifest Annotate alpine-arm64v8
-  docker manifest annotate ${TARGET}:${BUILD_VERSION}-alpine-arm64v8 ${TARGET}:${BUILD_VERSION}-alpine-arm64v8 --os=linux --arch=arm64 --variant=v8
-
-  # Manifest Push alpine-amd64
-  docker manifest push ${TARGET}:${BUILD_VERSION}-alpine-arm64v8
+  # # Manifest Create alpine-arm64v8
+  # echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${BUILD_VERSION}-alpine-arm64v8."
+  # docker manifest create ${TARGET}:${BUILD_VERSION}-alpine-arm64v8 \
+  #     ${TARGET}:${BUILD_VERSION}-alpine-arm64v8
+  #
+  # # Manifest Annotate alpine-arm64v8
+  # docker manifest annotate ${TARGET}:${BUILD_VERSION}-alpine-arm64v8 ${TARGET}:${BUILD_VERSION}-alpine-arm64v8 --os=linux --arch=arm64 --variant=v8
+  #
+  # # Manifest Push alpine-amd64
+  # docker manifest push ${TARGET}:${BUILD_VERSION}-alpine-arm64v8
 }
 
 setup_dependencies() {
@@ -185,9 +185,9 @@ prepare_qemu(){
     docker run --rm --privileged multiarch/qemu-user-static:register --reset
     mkdir tmp
     pushd tmp &&
-    curl -L -o qemu-x86_64-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-x86_64-static.tar.gz && tar xzf qemu-x86_64-static.tar.gz &&
+    #curl -L -o qemu-x86_64-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-x86_64-static.tar.gz && tar xzf qemu-x86_64-static.tar.gz &&
     curl -L -o qemu-arm-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-arm-static.tar.gz && tar xzf qemu-arm-static.tar.gz &&
-    curl -L -o qemu-aarch64-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-aarch64-static.tar.gz && tar xzf qemu-aarch64-static.tar.gz &&
+    #curl -L -o qemu-aarch64-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-aarch64-static.tar.gz && tar xzf qemu-aarch64-static.tar.gz &&
     popd
 }
 
