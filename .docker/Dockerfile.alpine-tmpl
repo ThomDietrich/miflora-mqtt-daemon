@@ -11,7 +11,7 @@ ARG QEMU_ARCH
 LABEL org.label-schema.build-date=${BUILD_DATE} \
     org.label-schema.docker.dockerfile=".docker/Dockerfile.alpine-tmpl" \
     org.label-schema.license="GNU" \
-    org.label-schema.name="Emqtt" \
+    org.label-schema.name="miflora-mqtt" \
     org.label-schema.version=${BUILD_VERSION} \
     org.label-schema.description="Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
     org.label-schema.url="https://github.com/ThomDietrich/miflora-mqtt-daemon" \
@@ -26,8 +26,9 @@ COPY tmp/qemu-${QEMU_ARCH}-static /usr/bin/qemu-${QEMU_ARCH}-static
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./miflora-mqtt-daemon.py /tmp/miflora-mqtt-daemon.py
 COPY ./config.ini.dist /tmp/config.ini.dist
+COPY ./start.sh /tmp/start.sh
 
-# Install required packages
+# Install required packages 
 RUN set -ex \
     && apk add --no-cache --virtual .run-deps \
         bluez \
@@ -35,7 +36,7 @@ RUN set -ex \
     && pip install --no-cache-dir -r /tmp/requirements.txt \
     && mkdir -p /opt/miflora-mqtt-daemon/config \
     && mv /tmp/miflora-mqtt-daemon.py /opt/miflora-mqtt-daemon \
-    && mv /tmp/config.ini.dist /opt/miflora-mqtt-daemon/config \
+    && mv /tmp/start.sh /opt/miflora-mqtt-daemon \
     && chmod +x /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py \
     && ln -s /opt/miflora-mqtt-daemon/* /usr/local/bin/ \
     && rm -rf /tmp/* \
@@ -47,8 +48,8 @@ RUN set -ex \
 
 WORKDIR /opt/miflora-mqtt-daemon
 
-# start miflora-mqtt-daemon
-CMD [ "python3", "./miflora-mqtt-daemon.py", "--config_dir", "/opt/miflora-mqtt-daemon/config" ]
+# Start miflora-mqtt-daemon
+CMD [".start.sh"]
 
 USER miflora
 
