@@ -129,7 +129,7 @@ This can be done either by using the internal daemon or cron.
 **Attention:** Daemon mode must be enabled in the configuration file (default).
 
 1. Systemd service - on systemd powered systems the **recommended** option
-   
+
    ```shell
    sudo cp /opt/miflora-mqtt-daemon/template.service /etc/systemd/system/miflora.service
 
@@ -142,33 +142,59 @@ This can be done either by using the internal daemon or cron.
    ```
 
 1. Screen Shell - Run the program inside a [screen shell](https://www.howtoforge.com/linux_screen):
-   
+
    ```shell
    screen -S miflora-mqtt-daemon -d -m python3 /path/to/miflora-mqtt-daemon.py
    ```
 
-## Usage with Docker
+## Docker usage with pre-defined images
+[Docker Hub](https://hub.docker.com/r/raymondmm/miflora-mqtt/) provides pre-defined Docker images for:
+- arm32v6
+- arm32v7
+- arm64v8
 
-A Dockerfile in the repository can be used to build a docker container from the sources with a command such as:
-
-```shell
-docker build -t miflora-mqtt-daemon .
-```
+These images are pushed using manifest-list which means one doesn't need to provide tagging for the host architecture. Docker will determine automatically and pull the right image automatically.
 
 Running the container in interactive mode works like this:
 
 ```shell
-docker run -it --name miflora-mqtt-daemon -v .:/config miflora-mqtt-daemon
+docker run -it --name miflora-mqtt-daemon -v .:/config raymondmm/miflora-mqtt-daemon:latest
 ```
 
 To run the container in daemon mode use `-d` flag:
 
 ```shell
-docker run -d --name miflora-mqtt-daemon -v .:/config miflora-mqtt-daemon
+docker run -d --name miflora-mqtt-daemon -v .:/config raymondmm/miflora-mqtt-daemon:latest
 ```
 
+If for some reason one wants to use the image for a certain architecture, just add associated tag:
+
+```shell
+docker run -it --name miflora-mqtt-daemon -v .:/config raymondmm/miflora-mqtt-daemon:v0.1.0-alpine-arm32v6
+```
+
+or
+
+```shell
+docker run -it --name miflora-mqtt-daemon -v .:/config raymondmm/miflora-mqtt-daemon:v0.1.0-slim-arm32v7
+```
+
+or
+
+```shell
+docker run -it --name miflora-mqtt-daemon -v .:/config raymondmm/miflora-mqtt-daemon:v0.1.0-slim-arm64v8
+```
+
+### Docker persistence
 The `/config` volume can be used to provide a directory on the host which contains your `config.ini` file (e.g. the `.` in the above example could represent `/opt/miflora-mqtt-daemon`).
 You may need to tweak the network settings (e.g. `--network host`) for Docker depending on how your system is set up.
+
+### Build custom Docker image
+The Dockerfile in the root of the repository can be used to build a custom docker image from the sources with a command such as:
+
+```shell
+docker build -t miflora-mqtt-daemon .
+```
 
 ## Integration
 
@@ -218,9 +244,8 @@ Number Balcony_Petunia_Light "Balcony Petunia Sunlight Intensity [%d lux]" <text
 #### Disclaimer and Legal
 
 > *Xiaomi* and *Mi Flora* are registered trademarks of *BEIJING XIAOMI TECHNOLOGY CO., LTD.*
-> 
+>
 > This project is a community project not for commercial use.
 > The authors will not be held responsible in the event of device failure or withered plants.
-> 
+>
 > This project is in no way affiliated with, authorized, maintained, sponsored or endorsed by *Xiaomi* or any of its affiliates or subsidiaries.
-
