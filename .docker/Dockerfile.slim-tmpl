@@ -39,16 +39,15 @@ RUN set -ex \
     && chmod +x /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py \
     && ln -s /opt/miflora-mqtt-daemon/* /usr/local/bin/ \
     && rm -rf /tmp/* \
+    && adduser --disabled-password -u 1000 miflora \
+    && chgrp -Rf root /opt/miflora-mqtt-daemon \
+    && chmod -Rf g+w /opt/miflora-mqtt-daemon \
+    && chown -Rf miflora /opt/miflora-mqtt-daemon
 
 WORKDIR /opt/miflora-mqtt-daemon
 
 # start miflora-mqtt-daemon
 CMD [ "python3", "./miflora-mqtt-daemon.py", "--config_dir", "/opt/miflora-mqtt-daemon/config" ]
-
-RUN adduser -D -u 1000 miflora
-
-RUN chgrp -Rf root /opt/miflora-mqtt-daemon && chmod -Rf g+w /opt/miflora-mqtt-daemon \
-      && chown -Rf miflora /opt/miflora-mqtt-daemon
 
 USER miflora
 
