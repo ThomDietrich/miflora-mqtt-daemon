@@ -213,6 +213,10 @@ Number Balcony_Petunia_Conductivity "Balcony Petunia Soil Conductivity/Fertility
 Number Balcony_Petunia_Light "Balcony Petunia Sunlight Intensity [%d lux]" <text> (gBalcony, gLight) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.light)]"}
 ```
 
+Paste the presented items definition into an openHAB items file and you are ready to go.
+Be sure to install the used MQTT Binding and JSONPath Transformation openHAB addons beforehand.
+
+
 ----
 
 #### Disclaimer and Legal
