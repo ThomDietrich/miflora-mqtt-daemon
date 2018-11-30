@@ -214,7 +214,7 @@ Number Balcony_Petunia_Light "Balcony Petunia Sunlight Intensity [%d lux]" <text
 ```
 
 Paste the presented items definition into an openHAB items file and your are ready to go.
-Be sure to install the JSONPath Transformation if not installed already (via PaperUI -> Addons -> Transformations).
+Be sure to install the used MQTT Binding and JSONPath Transformation openHAB addons beforehand.
 
 
 ----
