@@ -192,6 +192,7 @@ To generate a complete listing of Items, which you can then copy and adapt to yo
 ```shell
 python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py --gen-openhab
 ```
+Install the JSONPath Transformation if not installed already (via PaperUI -> Addons -> Transformations)
 
 The following code snippet shows a simple example of how a Mi Flora openHAB Items file could look like for the above example:
 
