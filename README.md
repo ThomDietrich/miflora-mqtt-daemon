@@ -192,7 +192,6 @@ To generate a complete listing of Items, which you can then copy and adapt to yo
 ```shell
 python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py --gen-openhab
 ```
-Install the JSONPath Transformation if not installed already (via PaperUI -> Addons -> Transformations)
 
 The following code snippet shows a simple example of how a Mi Flora openHAB Items file could look like for the above example:
 
@@ -213,6 +212,10 @@ Number Balcony_Petunia_Moisture "Balcony Petunia Soil Moisture [%d %%]" <text> (
 Number Balcony_Petunia_Conductivity "Balcony Petunia Soil Conductivity/Fertility [%d µS/cm]" <text> (gBalcony, gConductivity) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.conductivity)]"}
 Number Balcony_Petunia_Light "Balcony Petunia Sunlight Intensity [%d lux]" <text> (gBalcony, gLight) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.light)]"}
 ```
+
+Paste the presented items definition into an openHAB items file and your are ready to go.
+Be sure to install the JSONPath Transformation if not installed already (via PaperUI -> Addons -> Transformations).
+
 
 ----
 
