@@ -131,6 +131,8 @@ if reporting_mode == 'mqtt-homie':
     default_base_topic = 'homie'
 elif reporting_mode == 'homeassistant-mqtt':
     default_base_topic = 'homeassistant'
+elif reporting_mode == 'thingsboard-json':
+    default_base_topic = 'v1/devices/me/telemetry'
 else:
     default_base_topic = 'miflora'
 
@@ -140,7 +142,7 @@ sleep_period = config['Daemon'].getint('period', 300)
 miflora_cache_timeout = sleep_period - 1
 
 # Check configuration
-if reporting_mode not in ['mqtt-json', 'mqtt-homie', 'json', 'mqtt-smarthome', 'homeassistant-mqtt']:
+if reporting_mode not in ['mqtt-json', 'mqtt-homie', 'json', 'mqtt-smarthome', 'homeassistant-mqtt', 'thingsboard-json']:
     print_line('Configuration parameter reporting_mode set to an invalid value', error=True, sd_notify=True)
     sys.exit(1)
 if not config['Sensors']:
@@ -150,7 +152,7 @@ if not config['Sensors']:
 print_line('Configuration accepted', console=False, sd_notify=True)
 
 # MQTT connection
-if reporting_mode in ['mqtt-json', 'mqtt-homie', 'mqtt-smarthome', 'homeassistant-mqtt']:
+if reporting_mode in ['mqtt-json', 'mqtt-homie', 'mqtt-smarthome', 'homeassistant-mqtt', 'thingsboard-json']:
     print_line('Connecting to MQTT broker ...')
     mqtt_client = mqtt.Client()
     mqtt_client.on_connect = on_connect
@@ -176,17 +178,19 @@ if reporting_mode in ['mqtt-json', 'mqtt-homie', 'mqtt-smarthome', 'homeassistan
     if config['MQTT'].get('username'):
         mqtt_client.username_pw_set(config['MQTT'].get('username'), config['MQTT'].get('password', None))
     try:
-        mqtt_client.connect(config['MQTT'].get('hostname', 'localhost'),
-                            port=config['MQTT'].getint('port', 1883),
-                            keepalive=config['MQTT'].getint('keepalive', 60))
+        if reporting_mode != 'thingsboard-json':
+            mqtt_client.connect(config['MQTT'].get('hostname', 'localhost'),
+                                port=config['MQTT'].getint('port', 1883),
+                                keepalive=config['MQTT'].getint('keepalive', 60))
     except:
         print_line('MQTT connection error. Please check your settings in the configuration file "config.ini"', error=True, sd_notify=True)
         sys.exit(1)
     else:
         if reporting_mode == 'mqtt-smarthome':
             mqtt_client.publish('{}/connected'.format(base_topic), payload='1', retain=True)
-        mqtt_client.loop_start()
-        sleep(1.0) # some slack to establish the connection
+        if reporting_mode != 'thingsboard-json':
+            mqtt_client.loop_start()
+            sleep(1.0) # some slack to establish the connection
 
 sd_notifier.notify('READY=1')
 
@@ -341,6 +345,15 @@ while True:
         if reporting_mode == 'mqtt-json':
             print_line('Publishing to MQTT topic "{}/{}"'.format(base_topic, flora_name))
             mqtt_client.publish('{}/{}'.format(base_topic, flora_name), json.dumps(data))
+            sleep(0.5) # some slack for the publish roundtrip and callback function
+        elif reporting_mode == 'thingsboard-json':
+            print_line('Publishing to MQTT topic "{}" username "{}"'.format(base_topic, flora_name))
+            mqtt_client.username_pw_set(flora_name)
+            mqtt_client.connect(config['MQTT'].get('hostname', 'localhost'),
+                                port=config['MQTT'].getint('port', 1883),
+                                keepalive=config['MQTT'].getint('keepalive', 60))
+            sleep(1.0)
+            mqtt_client.publish('{}'.format(base_topic), json.dumps(data))
             sleep(0.5) # some slack for the publish roundtrip and callback function
         elif reporting_mode == 'homeassistant-mqtt':
             print_line('Publishing to MQTT topic "{}/sensor/{}/state"'.format(base_topic, flora_name).lower())
