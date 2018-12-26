@@ -129,7 +129,7 @@ This can be done either by using the internal daemon or cron.
 **Attention:** Daemon mode must be enabled in the configuration file (default).
 
 1. Systemd service - on systemd powered systems the **recommended** option
-   
+
    ```shell
    sudo cp /opt/miflora-mqtt-daemon/template.service /etc/systemd/system/miflora.service
 
@@ -142,7 +142,7 @@ This can be done either by using the internal daemon or cron.
    ```
 
 1. Screen Shell - Run the program inside a [screen shell](https://www.howtoforge.com/linux_screen):
-   
+
    ```shell
    screen -S miflora-mqtt-daemon -d -m python3 /path/to/miflora-mqtt-daemon.py
    ```
@@ -216,15 +216,20 @@ Number Balcony_Petunia_Light "Balcony Petunia Sunlight Intensity [%d lux]" <text
 Paste the presented items definition into an openHAB items file and you are ready to go.
 Be sure to install the used MQTT Binding and JSONPath Transformation openHAB addons beforehand.
 
+### ThingsBoard
+
+to integrate with thingsboard.io
+1. in the `config.ini` set `reporting_method = thingsboard-json`
+1. in the `config.ini` the sensor names have to be unique
+1. in ThingsBoard create devices and use `Access token` as `Credential type` and the sensor name used in the `config.ini` as token
 
 ----
 
 #### Disclaimer and Legal
 
 > *Xiaomi* and *Mi Flora* are registered trademarks of *BEIJING XIAOMI TECHNOLOGY CO., LTD.*
-> 
+>
 > This project is a community project not for commercial use.
 > The authors will not be held responsible in the event of device failure or withered plants.
-> 
+>
 > This project is in no way affiliated with, authorized, maintained, sponsored or endorsed by *Xiaomi* or any of its affiliates or subsidiaries.
-
