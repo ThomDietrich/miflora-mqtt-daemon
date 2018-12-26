@@ -178,10 +178,9 @@ if reporting_mode in ['mqtt-json', 'mqtt-homie', 'mqtt-smarthome', 'homeassistan
     if config['MQTT'].get('username'):
         mqtt_client.username_pw_set(config['MQTT'].get('username'), config['MQTT'].get('password', None))
     try:
-        if reporting_mode != 'thingsboard-json':
-            mqtt_client.connect(config['MQTT'].get('hostname', 'localhost'),
-                                port=config['MQTT'].getint('port', 1883),
-                                keepalive=config['MQTT'].getint('keepalive', 60))
+        mqtt_client.connect(config['MQTT'].get('hostname', 'localhost'),
+                            port=config['MQTT'].getint('port', 1883),
+                            keepalive=config['MQTT'].getint('keepalive', 60))
     except:
         print_line('MQTT connection error. Please check your settings in the configuration file "config.ini"', error=True, sd_notify=True)
         sys.exit(1)
@@ -341,7 +340,7 @@ while True:
         for param,_ in parameters.items():
             data[param] = flora['poller'].parameter_value(param)
         print_line('Result: {}'.format(json.dumps(data)))
-        
+
         if reporting_mode == 'mqtt-json':
             print_line('Publishing to MQTT topic "{}/{}"'.format(base_topic, flora_name))
             mqtt_client.publish('{}/{}'.format(base_topic, flora_name), json.dumps(data))
@@ -349,9 +348,7 @@ while True:
         elif reporting_mode == 'thingsboard-json':
             print_line('Publishing to MQTT topic "{}" username "{}"'.format(base_topic, flora_name))
             mqtt_client.username_pw_set(flora_name)
-            mqtt_client.connect(config['MQTT'].get('hostname', 'localhost'),
-                                port=config['MQTT'].getint('port', 1883),
-                                keepalive=config['MQTT'].getint('keepalive', 60))
+            mqtt_client.reconnect()
             sleep(1.0)
             mqtt_client.publish('{}'.format(base_topic), json.dumps(data))
             sleep(0.5) # some slack for the publish roundtrip and callback function
