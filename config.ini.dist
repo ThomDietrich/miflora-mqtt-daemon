@@ -44,9 +44,11 @@
 #keepalive = 60
 
 # The MQTT base topic to publish all Mi Flora sensor data topics under.
-# Default depends on the configured reporting_mode (mqtt-json, mqtt-smarthome: miflora, mqtt-homie: homie)
-#base_topic = miflora
-#base_topic = homie
+# Default depends on the configured reporting_method
+#base_topic = miflora                   # Default for: mqtt-json, mqtt-smarthome
+#base_topic = homie                     # Default for: mqtt-homie
+#base_topic = homeassistant             # Default for: homeassistant-mqtt
+#base_topic = v1/devices/me/telemetry   # Default for: thingsboard-json
 
 # Homie specific: The device ID for this daemon instance (Default: miflora-mqtt-daemon)
 #homie_device_id = miflora-mqtt-daemon
