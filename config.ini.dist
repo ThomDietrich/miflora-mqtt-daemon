@@ -15,7 +15,7 @@
 #                       (https://github.com/mqtt-smarthome/mqtt-smarthome)
 #  homeassistant-mqtt - Publish to an MQTT broker following the HomeAssistant discovery format
 #                       (https://www.home-assistant.io/docs/mqtt/discovery/)
-#  thingsboard-json   - Publish to ThingsBoard as MQTT broker
+#    thingsboard-json - Publish to the ThingsBoard MQTT broker
 #                       (https://thingsboard.io)
 #                json - Print to stdout as json encoded strings
 #
