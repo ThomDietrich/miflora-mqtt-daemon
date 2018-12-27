@@ -25,6 +25,7 @@ The program can be executed in **daemon mode** to run continuously in the backgr
     * following the [Homie Convention v2.0.5](https://github.com/marvinroger/homie)
     * following the [mqtt-smarthome architecture proposal](https://github.com/mqtt-smarthome/mqtt-smarthome)
     * using the [HomeAssistant MQTT discovery format](https://home-assistant.io/docs/mqtt/discovery/)
+    * using the [ThingsBoard.io](https://thingsboard.io/) MQTT interface
 * Announcement messages to support auto-discovery services
 * MQTT authentication support
 * No special/root privileges needed
@@ -129,7 +130,7 @@ This can be done either by using the internal daemon or cron.
 **Attention:** Daemon mode must be enabled in the configuration file (default).
 
 1. Systemd service - on systemd powered systems the **recommended** option
-
+   
    ```shell
    sudo cp /opt/miflora-mqtt-daemon/template.service /etc/systemd/system/miflora.service
 
@@ -142,7 +143,7 @@ This can be done either by using the internal daemon or cron.
    ```
 
 1. Screen Shell - Run the program inside a [screen shell](https://www.howtoforge.com/linux_screen):
-
+   
    ```shell
    screen -S miflora-mqtt-daemon -d -m python3 /path/to/miflora-mqtt-daemon.py
    ```
@@ -218,18 +219,19 @@ Be sure to install the used MQTT Binding and JSONPath Transformation openHAB add
 
 ### ThingsBoard
 
-to integrate with thingsboard.io
-1. in the `config.ini` set `reporting_method = thingsboard-json`
-1. in the `config.ini` the sensor names have to be unique
-1. in ThingsBoard create devices and use `Access token` as `Credential type` and the sensor name used in the `config.ini` as token
+to integrate with [ThingsBoard.io](https://thingsboard.io/):
+
+1. in your `config.ini` set `reporting_method = thingsboard-json`
+1. in your `config.ini` assign unique sensor names for your plants
+1. on the ThingsBoard platform create devices and use `Access token` as `Credential type` and the chosen sensor name as token
 
 ----
 
 #### Disclaimer and Legal
 
 > *Xiaomi* and *Mi Flora* are registered trademarks of *BEIJING XIAOMI TECHNOLOGY CO., LTD.*
->
+> 
 > This project is a community project not for commercial use.
 > The authors will not be held responsible in the event of device failure or withered plants.
->
+> 
 > This project is in no way affiliated with, authorized, maintained, sponsored or endorsed by *Xiaomi* or any of its affiliates or subsidiaries.
