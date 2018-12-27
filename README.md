@@ -25,6 +25,7 @@ The program can be executed in **daemon mode** to run continuously in the backgr
     * following the [Homie Convention v2.0.5](https://github.com/marvinroger/homie)
     * following the [mqtt-smarthome architecture proposal](https://github.com/mqtt-smarthome/mqtt-smarthome)
     * using the [HomeAssistant MQTT discovery format](https://home-assistant.io/docs/mqtt/discovery/)
+    * using the [ThingsBoard.io](https://thingsboard.io/) MQTT interface
 * Announcement messages to support auto-discovery services
 * MQTT authentication support
 * No special/root privileges needed
@@ -216,6 +217,13 @@ Number Balcony_Petunia_Light "Balcony Petunia Sunlight Intensity [%d lux]" <text
 Paste the presented items definition into an openHAB items file and you are ready to go.
 Be sure to install the used MQTT Binding and JSONPath Transformation openHAB addons beforehand.
 
+### ThingsBoard
+
+to integrate with [ThingsBoard.io](https://thingsboard.io/):
+
+1. in your `config.ini` set `reporting_method = thingsboard-json`
+1. in your `config.ini` assign unique sensor names for your plants
+1. on the ThingsBoard platform create devices and use `Access token` as `Credential type` and the chosen sensor name as token
 
 ----
 
@@ -227,4 +235,3 @@ Be sure to install the used MQTT Binding and JSONPath Transformation openHAB add
 > The authors will not be held responsible in the event of device failure or withered plants.
 > 
 > This project is in no way affiliated with, authorized, maintained, sponsored or endorsed by *Xiaomi* or any of its affiliates or subsidiaries.
-

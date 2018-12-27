@@ -9,12 +9,14 @@
 # Currently supported:
 #
 #           mqtt-json - Publish to an MQTT broker in a proprietary json format (Default)
-#          mqtt-homie - Publish to an MQTT broker following the Homie MQTT convention 
+#          mqtt-homie - Publish to an MQTT broker following the Homie MQTT convention
 #                       (https://github.com/marvinroger/homie)
 #      mqtt-smarthome - Publish to an MQTT broker following the mqtt-smarthome proposal
 #                       (https://github.com/mqtt-smarthome/mqtt-smarthome)
 #  homeassistant-mqtt - Publish to an MQTT broker following the HomeAssistant discovery format
 #                       (https://www.home-assistant.io/docs/mqtt/discovery/)
+#    thingsboard-json - Publish to the ThingsBoard MQTT broker
+#                       (https://thingsboard.io)
 #                json - Print to stdout as json encoded strings
 #
 #reporting_method = mqtt-json
@@ -42,9 +44,11 @@
 #keepalive = 60
 
 # The MQTT base topic to publish all Mi Flora sensor data topics under.
-# Default depends on the configured reporting_mode (mqtt-json, mqtt-smarthome: miflora, mqtt-homie: homie)
-#base_topic = miflora
-#base_topic = homie
+# Default depends on the configured reporting_method
+#base_topic = miflora                   # Default for: mqtt-json, mqtt-smarthome
+#base_topic = homie                     # Default for: mqtt-homie
+#base_topic = homeassistant             # Default for: homeassistant-mqtt
+#base_topic = v1/devices/me/telemetry   # Default for: thingsboard-json
 
 # Homie specific: The device ID for this daemon instance (Default: miflora-mqtt-daemon)
 #homie_device_id = miflora-mqtt-daemon
@@ -77,4 +81,3 @@
 #Schefflera@Living = C4:7C:8D:11:22:33
 #JapaneseBonsai    = C4:7C:8D:44:55:66
 #Petunia@Balcony   = C4:7C:8D:77:88:99
-
