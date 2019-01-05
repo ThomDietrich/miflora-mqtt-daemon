@@ -40,6 +40,9 @@
 # The TCP port the MQTT broker is listening on (Default: 1883)
 #port = 1883
 
+# The client identifier that identifies this MQTT client (Default: miflora)
+#client_id = miflora
+
 # Maximum period in seconds between ping messages to the broker. (Default: 60)
 #keepalive = 60
 
