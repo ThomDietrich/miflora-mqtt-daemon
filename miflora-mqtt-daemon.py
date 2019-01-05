@@ -154,7 +154,7 @@ print_line('Configuration accepted', console=False, sd_notify=True)
 # MQTT connection
 if reporting_mode in ['mqtt-json', 'mqtt-homie', 'mqtt-smarthome', 'homeassistant-mqtt', 'thingsboard-json']:
     print_line('Connecting to MQTT broker ...')
-    mqtt_client = mqtt.Client()
+    mqtt_client = mqtt.Client(client_id = config['MQTT'].get('client_id', 'miflora'))
     mqtt_client.on_connect = on_connect
     mqtt_client.on_publish = on_publish
     if reporting_mode == 'mqtt-json':
