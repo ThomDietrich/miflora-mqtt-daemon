@@ -133,6 +133,8 @@ elif reporting_mode == 'homeassistant-mqtt':
     default_base_topic = 'homeassistant'
 elif reporting_mode == 'thingsboard-json':
     default_base_topic = 'v1/devices/me/telemetry'
+elif reporting_mode == 'wirenboard-mqtt':
+    default_base_topic = ''
 else:
     default_base_topic = 'miflora'
 
@@ -142,17 +144,20 @@ sleep_period = config['Daemon'].getint('period', 300)
 miflora_cache_timeout = sleep_period - 1
 
 # Check configuration
-if reporting_mode not in ['mqtt-json', 'mqtt-homie', 'json', 'mqtt-smarthome', 'homeassistant-mqtt', 'thingsboard-json']:
+if reporting_mode not in ['mqtt-json', 'mqtt-homie', 'json', 'mqtt-smarthome', 'homeassistant-mqtt', 'thingsboard-json', 'wirenboard-mqtt']:
     print_line('Configuration parameter reporting_mode set to an invalid value', error=True, sd_notify=True)
     sys.exit(1)
 if not config['Sensors']:
     print_line('No sensors found in configuration file "config.ini"', error=True, sd_notify=True)
     sys.exit(1)
+if reporting_mode == 'wirenboard-mqtt' and base_topic:
+    print_line('Parameter "base_topic" ignored for "reporting_method = wirenboard-mqtt"', warning=True, sd_notify=True)
+
 
 print_line('Configuration accepted', console=False, sd_notify=True)
 
 # MQTT connection
-if reporting_mode in ['mqtt-json', 'mqtt-homie', 'mqtt-smarthome', 'homeassistant-mqtt', 'thingsboard-json']:
+if reporting_mode in ['mqtt-json', 'mqtt-homie', 'mqtt-smarthome', 'homeassistant-mqtt', 'thingsboard-json', 'wirenboard-mqtt']:
     print_line('Connecting to MQTT broker ...')
     mqtt_client = mqtt.Client()
     mqtt_client.on_connect = on_connect
@@ -303,6 +308,22 @@ elif reporting_mode == 'homeassistant-mqtt':
             if 'device_class' in params:
                 payload['device_class'] = params['device_class']
             mqtt_client.publish('{}/{}_{}/config'.format(topic_path, flora_name, sensor).lower(), json.dumps(payload), 1, True)
+elif reporting_mode == 'wirenboard-mqtt':
+    print_line('Announcing Mi Flora devices to MQTT broker for auto-discovery ...')
+    for [flora_name, flora] in flores.items():
+        mqtt_client.publish('/devices/{}/meta/name'.format(flora_name), flora_name, 1, True)
+        topic_path = '/devices/{}/controls'.format(flora_name)
+        mqtt_client.publish('{}/battery/meta/type'.format(topic_path), 'value', 1, True)
+        mqtt_client.publish('{}/battery/meta/units'.format(topic_path), '%', 1, True)
+        mqtt_client.publish('{}/conductivity/meta/type'.format(topic_path), 'value', 1, True)
+        mqtt_client.publish('{}/conductivity/meta/units'.format(topic_path), 'µS/cm', 1, True)
+        mqtt_client.publish('{}/light/meta/type'.format(topic_path), 'value', 1, True)
+        mqtt_client.publish('{}/light/meta/units'.format(topic_path), 'lux', 1, True)
+        mqtt_client.publish('{}/moisture/meta/type'.format(topic_path), 'rel_humidity', 1, True)
+        mqtt_client.publish('{}/temperature/meta/type'.format(topic_path), 'temperature', 1, True)
+        mqtt_client.publish('{}/timestamp/meta/type'.format(topic_path), 'text', 1, True)
+    sleep(0.5) # some slack for the publish roundtrip and callback function
+    print()
 
 print_line('Initialization complete, starting MQTT publish loop', console=False, sd_notify=True)
 
@@ -368,6 +389,12 @@ while True:
                 payload['val'] = value
                 payload['ts'] = int(round(time() * 1000))
                 mqtt_client.publish('{}/status/{}/{}'.format(base_topic, flora_name, param), json.dumps(payload), retain=True)
+            sleep(0.5)  # some slack for the publish roundtrip and callback function
+        elif reporting_mode == 'wirenboard-mqtt':
+            for [param, value] in data.items():
+                print_line('Publishing data to MQTT topic "/devices/{}/controls/{}"'.format(flora_name, param))
+                mqtt_client.publish('/devices/{}/controls/{}'.format(flora_name, param), value, retain=True)
+            mqtt_client.publish('/devices/{}/controls/{}'.format(flora_name, 'timestamp'), strftime('%Y-%m-%d %H:%M:%S', localtime()), retain=True)
             sleep(0.5)  # some slack for the publish roundtrip and callback function
         elif reporting_mode == 'json':
             data['timestamp'] = strftime('%Y-%m-%d %H:%M:%S', localtime())

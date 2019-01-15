@@ -17,6 +17,8 @@
 #                       (https://www.home-assistant.io/docs/mqtt/discovery/)
 #    thingsboard-json - Publish to the ThingsBoard MQTT broker
 #                       (https://thingsboard.io)
+#    wirenboard-mqtt -  Publish to the Wiren Board MQTT broker
+#                       (https://wirenboard.com)
 #                json - Print to stdout as json encoded strings
 #
 #reporting_method = mqtt-json
@@ -49,6 +51,7 @@
 #base_topic = homie                     # Default for: mqtt-homie
 #base_topic = homeassistant             # Default for: homeassistant-mqtt
 #base_topic = v1/devices/me/telemetry   # Default for: thingsboard-json
+#base_topic =                           # Default for: wirenboard-mqtt
 
 # Homie specific: The device ID for this daemon instance (Default: miflora-mqtt-daemon)
 #homie_device_id = miflora-mqtt-daemon
