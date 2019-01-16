@@ -26,6 +26,7 @@ The program can be executed in **daemon mode** to run continuously in the backgr
     * following the [mqtt-smarthome architecture proposal](https://github.com/mqtt-smarthome/mqtt-smarthome)
     * using the [HomeAssistant MQTT discovery format](https://home-assistant.io/docs/mqtt/discovery/)
     * using the [ThingsBoard.io](https://thingsboard.io/) MQTT interface
+    * following the [Wiren Board MQTT Conventions](https://github.com/contactless/homeui/blob/master/conventions.md)
 * Announcement messages to support auto-discovery services
 * MQTT authentication support
 * No special/root privileges needed
@@ -224,6 +225,15 @@ to integrate with [ThingsBoard.io](https://thingsboard.io/):
 1. in your `config.ini` set `reporting_method = thingsboard-json`
 1. in your `config.ini` assign unique sensor names for your plants
 1. on the ThingsBoard platform create devices and use `Access token` as `Credential type` and the chosen sensor name as token
+
+### Wiren Board
+
+to integrate with [Wiren Board](https://wirenboard.com/en/) in your `config.ini` set:
+
+1. `reporting_method = wirenboard-mqtt`
+1. set `hostname` with address of [Wiren Board](https://wirenboard.com/en/) controller and optionally  `username` and `password`
+
+sensors will automatically appear on [Wiren Board](https://wirenboard.com/en/) as separate devices
 
 ----
 
