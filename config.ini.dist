@@ -72,7 +72,7 @@
 # Path to TLS client auth certificate file
 #tls_certfile =
 
-[Sensors]
+[MiFlora]
 
 # Add your Mi Flora sensors here. Each sensor consists of a name and a Ethernet MAC address.
 # Additional location information can be added to the name, delimited by an '@'.
@@ -84,3 +84,6 @@
 #Schefflera@Living = C4:7C:8D:11:22:33
 #JapaneseBonsai    = C4:7C:8D:44:55:66
 #Petunia@Balcony   = C4:7C:8D:77:88:99
+
+[MiTempBt]
+# Add your Mi Temerature & Humidity sensors here.  Setup is same as for [MiFlora] section
