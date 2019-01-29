@@ -14,6 +14,8 @@ The program can be executed in **daemon mode** to run continuously in the backgr
 * A coin cell battery is used as power source, which should last between 1.5 to 2 years under normal conditions
 * Food for thought: The sensor can also be used for other things than plants, like in the [fridge](https://community.openhab.org/t/refrigerator-temperature-sensors/40076) or as [door and blind sensor](https://community.openhab.org/t/miflora-cheap-window-and-door-sensor-water-sensor-blind-sensor-etc/38232)
 
+![Promotional image](https://ae01.alicdn.com/kf/HTB1WAd1XEvrK1RjSszfq6xJNVXaB/International-Version-Original-Xiaomi-Flower-Care-Soil-Water-Light-Smart-Flower-Monitor-for-Garden-Plants.jpg_640x640.jpg)
+
 ## About Xiaomi Mijia Temperature and Humidity Sensor
 * ''Xiaomi Mijia Temperature and Humidity Sensor'' ([e.g. $13](https://www.aliexpress.com/wholesale?SearchText=Mijia+Bluetooth+Temperature+Humidity+Sensor)) are for monitoring indoor air temperature and humidity
 * The sensor uses Bluetooth Low Energy (BLE) and has a rather limited range
@@ -23,6 +25,8 @@ The program can be executed in **daemon mode** to run continuously in the backgr
 * Humidity range: 0 ~ 99.9%
 * Rated power: 0.18 mW
 * Powered By : Batteries (AAA)
+
+![Promotional image](http://ae01.alicdn.com/kf/HTB11qrpeStYBeNjSspkq6zU8VXax.jpg)
 
 ## Features
 
@@ -48,8 +52,6 @@ The program can be executed in **daemon mode** to run continuously in the backgr
 * Reliable and intuitive
 * Tested on Raspberry Pi 3 and Raspberry Pi 0W
 * Wiren Board 5 (Debian Stretch)
-
-![Promotional image](https://ae01.alicdn.com/kf/HTB1WAd1XEvrK1RjSszfq6xJNVXaB/International-Version-Original-Xiaomi-Flower-Care-Soil-Water-Light-Smart-Flower-Monitor-for-Garden-Plants.jpg_640x640.jpg)
 
 ### Readings
 
@@ -93,7 +95,7 @@ sudo pip3 install -r requirements.txt
 
 The daemon depends on `gatttool`, an external tool provided by the package `bluez` installed just now.
 Make sure gatttool is available on your system by executing the command once:
-
+   
 ```shell
 gatttool --help
 ```
