@@ -21,10 +21,10 @@ The program can be executed in **daemon mode** to run continuously in the backgr
 * The sensor uses Bluetooth Low Energy (BLE) and has a rather limited range
 * Weight: 43 g
 * Screen size: 1.78 inch
-* Temperature range: -9.9-60
-* Humidity range: 0 ~ 99.9%
+* Temperature range: -9.9°C-60°C
+* Humidity range: 0~99.9%
 * Rated power: 0.18 mW
-* Powered By : Batteries (AAA)
+* Powered By: Battery (AAA)
 
 ![Promotional image](http://ae01.alicdn.com/kf/HTB11qrpeStYBeNjSspkq6zU8VXax.jpg)
 
@@ -65,7 +65,7 @@ The Mi Flora sensor offers the following plant and soil readings:
 | `conductivity`  | [Soil fertility](https://www.plantcaretools.com/measure-fertilization-with-ec-meters-for-plants-faq), in [µS/cm] |
 | `battery`       | Sensor battery level, in [%] |
 
-The Xiaomi Mijia Temperature and Humidity Sensor offers the following plant and soil readings:
+The Xiaomi Mijia Temperature and Humidity Sensor offers the following readings:
 
 | Name            | Description |
 |-----------------|-------------|
