@@ -1,4 +1,4 @@
-# Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon
+# Xiaomi Mi Bluetooth Sensor MQTT Client/Daemon
 
 A simple Linux python script to query arbitrary Mi Bluetooth sensor devices and send the data to an **MQTT** broker,
 e.g., the famous [Eclipse Mosquitto](https://projects.eclipse.org/projects/technology.mosquitto).
