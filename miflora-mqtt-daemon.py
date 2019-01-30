@@ -190,7 +190,7 @@ def init_sensors(sensor_type, sensors):
             print_line('Initial connection to {} sensor "{}" ({}) successful'.format(sensor_type_name, name_pretty, mac), sd_notify=True)
         print()
         sensors[name_clean] = sensor
-        
+
 # Pool & publish information from sensors
 def pool_sensors(sensor_type, sensors, parameters):
     sensor_type_name = sensor_type_to_name(sensor_type)
@@ -488,6 +488,7 @@ elif reporting_mode == 'wirenboard-mqtt':
     print()
 
 print_line('Initialization complete, starting MQTT publish loop', console=False, sd_notify=True)
+
 
 class sensorPooler(threading.Thread):
    def __init__(self, sensor_type, sensors, sensor_parameters, sleep_period):

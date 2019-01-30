@@ -1,6 +1,6 @@
-# Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon
+# Xiaomi Mi Bluetooth Sensor MQTT Client/Daemon
 
-A simple Linux python script to query arbitrary Mi Flora plant sensor devices and send the data to an **MQTT** broker,
+A simple Linux python script to query arbitrary Mi Bluetooth sensor devices and send the data to an **MQTT** broker,
 e.g., the famous [Eclipse Mosquitto](https://projects.eclipse.org/projects/technology.mosquitto).
 After data made the hop to the MQTT broker it can be used by home automation software, like [openHAB](https://openhab.org) or Home Assistant.
 
@@ -9,15 +9,30 @@ After data made the hop to the MQTT broker it can be used by home automation sof
 The program can be executed in **daemon mode** to run continuously in the background, e.g., as a systemd service.
 
 ## About Mi Flora
-* [Xiaomi Mi Flora sensors](https://xiaomi-mi.com/sockets-and-sensors/xiaomi-huahuacaocao-flower-care-smart-monitor) ([e.g. 12-17€](https://www.aliexpress.com/wholesale?SearchText=xiaomi+mi+flora+plant+sensor)) are meant to keep your plants alive by monitoring soil moisture, soil conductivity and light conditions
+* [Xiaomi Mi Flora sensors](https://www.huahuacaocao.com) ([e.g. 12-17€](https://www.aliexpress.com/wholesale?SearchText=xiaomi+mi+flora+plant+sensor)) are meant to keep your plants alive by monitoring soil moisture, soil conductivity and light conditions
 * The sensor uses Bluetooth Low Energy (BLE) and has a rather limited range
 * A coin cell battery is used as power source, which should last between 1.5 to 2 years under normal conditions
 * Food for thought: The sensor can also be used for other things than plants, like in the [fridge](https://community.openhab.org/t/refrigerator-temperature-sensors/40076) or as [door and blind sensor](https://community.openhab.org/t/miflora-cheap-window-and-door-sensor-water-sensor-blind-sensor-etc/38232)
 
+![Promotional image](https://ae01.alicdn.com/kf/HTB1WAd1XEvrK1RjSszfq6xJNVXaB/International-Version-Original-Xiaomi-Flower-Care-Soil-Water-Light-Smart-Flower-Monitor-for-Garden-Plants.jpg_640x640.jpg)
+
+## About Xiaomi Mijia Temperature and Humidity Sensor
+* ''Xiaomi Mijia Temperature and Humidity Sensor'' ([e.g. $13](https://www.aliexpress.com/wholesale?SearchText=Mijia+Bluetooth+Temperature+Humidity+Sensor)) are for monitoring indoor air temperature and humidity
+* The sensor uses Bluetooth Low Energy (BLE) and has a rather limited range
+* Weight: 43 g
+* Screen size: 1.78 inch
+* Temperature range: -9.9°C-60°C
+* Humidity range: 0~99.9%
+* Rated power: 0.18 mW
+* Powered By: Battery (AAA)
+
+![Promotional image](http://ae01.alicdn.com/kf/HTB11qrpeStYBeNjSspkq6zU8VXax.jpg)
+
 ## Features
 
 * Tested with Mi Flora firmware v2.6.2, v2.6.4, v2.6.6, v3.1.4, others anticipated
-* Build on top of [open-homeautomation/miflora](https://github.com/open-homeautomation/miflora)
+* Tested with Xiaomi Mijia Temperature and Humidity Sensor (MJ_HT_V1) firmware v00.00.66
+* Build on top of [open-homeautomation/miflora](https://github.com/open-homeautomation/miflora) and [mitemp_bt](https://github.com/flavio20002/mitemp_bt)
 * Highly configurable
 * Data publication via MQTT
 * Configurable topic and payload:
@@ -36,9 +51,7 @@ The program can be executed in **daemon mode** to run continuously in the backgr
 * Automatic generation of openHAB items and rules
 * Reliable and intuitive
 * Tested on Raspberry Pi 3 and Raspberry Pi 0W
-
-
-![Promotional image](https://xiaomi-mi.com/uploads/ck/xiaomi-flower-monitor-001.jpg)
+* Wiren Board 5 (Debian Stretch)
 
 ### Readings
 
@@ -50,6 +63,14 @@ The Mi Flora sensor offers the following plant and soil readings:
 | `light`         | [Sunlight intensity](https://aquarium-digest.com/tag/lumenslux-requirements-of-a-cannabis-plant/), in [lux] |
 | `moisture`      | [Soil moisture](https://observant.zendesk.com/hc/en-us/articles/208067926-Monitoring-Soil-Moisture-for-Optimal-Crop-Growth), in [%] |
 | `conductivity`  | [Soil fertility](https://www.plantcaretools.com/measure-fertilization-with-ec-meters-for-plants-faq), in [µS/cm] |
+| `battery`       | Sensor battery level, in [%] |
+
+The Xiaomi Mijia Temperature and Humidity Sensor offers the following readings:
+
+| Name            | Description |
+|-----------------|-------------|
+| `temperature`   | Air temperature, in [°C] (0.1°C resolution) |
+| `humidity`      | Air humidity in [%] |
 | `battery`       | Sensor battery level, in [%] |
 
 ## Prerequisites
@@ -74,7 +95,7 @@ sudo pip3 install -r requirements.txt
 
 The daemon depends on `gatttool`, an external tool provided by the package `bluez` installed just now.
 Make sure gatttool is available on your system by executing the command once:
-
+   
 ```shell
 gatttool --help
 ```
@@ -91,13 +112,13 @@ vim /opt/miflora-mqtt-daemon/config.ini
 
 **Attention:**
 You need to add at least one sensor to the configuration.
-Scan for available Mi Flora sensors in your proximity with the command:
+Scan for available Mi Bluetooth sensors in your proximity with the command:
 
 ```shell
 sudo hcitool lescan
 ```
 
-Interfacing your Mi Flora sensor with this program is harmless.
+Interfacing your Mi Bluetooth sensor with this program is harmless.
 The device will not be modified and will still work with the official Xiaomi app.
 
 ## Execution
