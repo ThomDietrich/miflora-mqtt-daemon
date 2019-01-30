@@ -23,7 +23,7 @@
 #
 #reporting_method = mqtt-json
 
-# The bluetooth adapter that should be used to connect to Mi Flora devices (Default: hci0)
+# The bluetooth adapter that should be used to connect to Mi Bluetooth devices (Default: hci0)
 #adapter = hci0
 
 [Daemon]
@@ -31,8 +31,11 @@
 # Enable or Disable an endless execution loop (Default: true)
 #enabled = true
 
-# The period between two measurements in seconds (Default: 300)
-#period = 300
+# The period between two measurements in seconds for MiFlora sensors (Default: 300)
+#period_miflora = 300
+
+# The period between two measurements in seconds for MiTempBt sensors (Default: 60)
+#period_mitempbt = 60
 
 [MQTT]
 
@@ -86,4 +89,5 @@
 #Petunia@Balcony   = C4:7C:8D:77:88:99
 
 [MiTempBt]
+
 # Add your Mi Temerature & Humidity sensors here.  Setup is same as for [MiFlora] section
