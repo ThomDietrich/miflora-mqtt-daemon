@@ -17,6 +17,7 @@ from unidecode import unidecode
 from miflora.miflora_poller import MiFloraPoller, MI_BATTERY, MI_CONDUCTIVITY, MI_LIGHT, MI_MOISTURE, MI_TEMPERATURE
 from mithermometer.mithermometer_poller import MiThermometerPoller, MI_HUMIDITY
 from btlewrap.bluepy import BluepyBackend, BluetoothBackendException
+from bluepy.btle import BTLEDisconnectError
 import paho.mqtt.client as mqtt
 import sdnotify
 
@@ -205,7 +206,7 @@ def pool_sensors(sensor_type, sensors, parameters):
             try:
                 sensor['poller'].fill_cache()
                 sensor['poller'].parameter_value(MI_BATTERY)
-            except (IOError, BluetoothBackendException):
+            except (IOError, BluetoothBackendException,BTLEDisconnectError):
                 attempts = attempts - 1
                 if attempts > 0:
                     print_line('Retrying ...', warning = True)
