@@ -16,7 +16,7 @@ from configparser import ConfigParser
 from unidecode import unidecode
 from miflora.miflora_poller import MiFloraPoller, MI_BATTERY, MI_CONDUCTIVITY, MI_LIGHT, MI_MOISTURE, MI_TEMPERATURE
 from mithermometer.mithermometer_poller import MiThermometerPoller, MI_HUMIDITY
-from btlewrap.bluepy import BluepyBackend, BluetoothBackendException
+from btlewrap import BluepyBackend, BluetoothBackendException
 from bluepy.btle import BTLEDisconnectError
 import paho.mqtt.client as mqtt
 import sdnotify
@@ -206,7 +206,7 @@ def pool_sensors(sensor_type, sensors, parameters):
             try:
                 sensor['poller'].fill_cache()
                 sensor['poller'].parameter_value(MI_BATTERY)
-            except (IOError, BluetoothBackendException,BTLEDisconnectError):
+            except (IOError, BluetoothBackendException, BTLEDisconnectError):
                 attempts = attempts - 1
                 if attempts > 0:
                     print_line('Retrying ...', warning = True)
@@ -260,7 +260,7 @@ def pool_sensors(sensor_type, sensors, parameters):
                 print_line('Publishing data to MQTT topic "/devices/{}/controls/{}"'.format(sensor_name, param))
                 mqtt_client.publish('/devices/{}/controls/{}'.format(sensor_name, param), value, retain=True)
             mqtt_client.publish('/devices/{}/controls/{}'.format(sensor_name, 'timestamp'), strftime('%Y-%m-%d %H:%M:%S', localtime()), retain=True)
-            sleep(0.5)  # some slack for the publish roundtrip and callback function
+            sleep(1)  # some slack for the publish roundtrip and callback function
         elif reporting_mode == 'json':
             data['timestamp'] = strftime('%Y-%m-%d %H:%M:%S', localtime())
             data['name'] = sensor_name
@@ -305,7 +305,7 @@ mitempbt_cache_timeout = mitempbt_sleep_period - 1
 if reporting_mode not in ['mqtt-json', 'mqtt-homie', 'json', 'mqtt-smarthome', 'homeassistant-mqtt', 'thingsboard-json', 'wirenboard-mqtt']:
     print_line('Configuration parameter reporting_mode set to an invalid value', error=True, sd_notify=True)
     sys.exit(1)
-if not config[sensor_type_miflora] or not config[sensor_type_mitempbt]:
+if not config[sensor_type_miflora] and not config[sensor_type_mitempbt]:
     print_line('No sensors found in configuration file "config.ini"', error=True, sd_notify=True)
     sys.exit(1)
 if reporting_mode == 'wirenboard-mqtt' and base_topic:
@@ -519,14 +519,15 @@ class sensorPooler(threading.Thread):
 hciLock = threading.Lock()
 threads = []
 
-mifloraThread = sensorPooler(sensor_type_miflora, mifloras, miflora_parameters, miflora_sleep_period)
-mitempbtThread = sensorPooler(sensor_type_mitempbt, mitempbts, mitempbt_parameters, mitempbt_sleep_period)
+if len(mifloras) != 0:
+    mifloraThread = sensorPooler(sensor_type_miflora, mifloras, miflora_parameters, miflora_sleep_period)
+    mifloraThread.start()
+    threads.append(mifloraThread)
 
-mifloraThread.start()
-mitempbtThread.start()
-
-threads.append(mifloraThread)
-threads.append(mitempbtThread)
+if len(mitempbts) != 0:
+    mitempbtThread = sensorPooler(sensor_type_mitempbt, mitempbts, mitempbt_parameters, mitempbt_sleep_period)
+    mitempbtThread.start()
+    threads.append(mitempbtThread)
 
 for thread in threads:
    thread.join()
