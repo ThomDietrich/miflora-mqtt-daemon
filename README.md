@@ -225,6 +225,34 @@ to integrate with [ThingsBoard.io](https://thingsboard.io/):
 1. in your `config.ini` assign unique sensor names for your plants
 1. on the ThingsBoard platform create devices and use `Access token` as `Credential type` and the chosen sensor name as token
 
+## Openhab with the internal broker (since v2.4)
+In the following is an example of a textual configuration using the new MQTT plugin from Openhab 2.4 with the internal broker.
+
+### Thing file
+```
+Bridge mqtt:systemBroker:MqttBroker "MQTT Broker" [ brokerid="embedded-mqtt-broker" ]
+{
+    Thing topic FicusBenjamin "Ficus Benjamin"
+    {
+        Channels:
+            Type number : light         "Lichtstärke"           [ stateTopic="miflora/FicusBenjamin", transformationPattern="JSONPATH:$.light" ]
+            Type number : battery       "Batterieladung"        [ stateTopic="miflora/FicusBenjamin", transformationPattern="JSONPATH:$.battery" ]
+            Type number : temperature   "Lufttemperatur"        [ stateTopic="miflora/FicusBenjamin", transformationPattern="JSONPATH:$.temperature" ]
+            Type number : conductivity  "Bodenfruchtbarkeit"    [ stateTopic="miflora/FicusBenjamin", transformationPattern="JSONPATH:$.conductivity" ]
+            Type number : moisture      "Bodenfeuchtigkeit"     [ stateTopic="miflora/FicusBenjamin", transformationPattern="JSONPATH:$.moisture" ]
+    }
+}
+```
+
+### Item file
+```
+Number:Illuminance      Miflora_Ficus_Light         "Lichtstärke Ficus [%d lx]"             <light>         { channel="mqtt:topic:MqttBroker:FicusBenjamin:light" }
+Number:Dimensionless    Miflora_Ficus_Battery       "Batterieladung Ficus [%d %%]"          <battery>       { channel="mqtt:topic:MqttBroker:FicusBenjamin:battery" }
+Number:Temperature      Miflora_Ficus_Temperature   "Lufttemperatur Ficus [%.1f °C]"        <temperature>   { channel="mqtt:topic:MqttBroker:FicusBenjamin:temperature" }
+Number                  Miflora_Ficus_Conductivity  "Bodenfruchtbarkeit Ficus [%d µS/cm]"   <lawnmower>     { channel="mqtt:topic:MqttBroker:FicusBenjamin:conductivity" }
+Number:Dimensionless    Miflora_Ficus_Moisture      "Bodenfeuchtigkeit Ficus [%d %%]"       <humidity>      { channel="mqtt:topic:MqttBroker:FicusBenjamin:moisture" }
+```
+
 ----
 
 #### Disclaimer and Legal
