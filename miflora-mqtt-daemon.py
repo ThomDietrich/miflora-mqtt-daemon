@@ -17,9 +17,12 @@ from unidecode import unidecode
 from miflora.miflora_poller import MiFloraPoller, MI_BATTERY, MI_CONDUCTIVITY, MI_LIGHT, MI_MOISTURE, MI_TEMPERATURE
 from mithermometer.mithermometer_poller import MiThermometerPoller, MI_HUMIDITY
 from btlewrap import BluepyBackend, BluetoothBackendException
-from bluepy.btle import BTLEDisconnectError
+from bluepy.btle import BTLEException
 import paho.mqtt.client as mqtt
 import sdnotify
+from signal import signal, SIGPIPE, SIG_DFL
+
+signal(SIGPIPE,SIG_DFL)
 
 project_name = 'Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon'
 project_url = 'https://github.com/ThomDietrich/miflora-mqtt-daemon'
@@ -181,7 +184,7 @@ def init_sensors(sensor_type, sensors):
             sensor_poller.fill_cache()
             sensor_poller.parameter_value(MI_BATTERY)
             sensor['firmware'] = sensor_poller.firmware_version()
-        except (IOError, BluetoothBackendException):
+        except (IOError, BluetoothBackendException, BTLEException, RuntimeError, BrokenPipeError):
             print_line('Initial connection to {} sensor "{}" ({}) failed.'.format(sensor_type_name, name_pretty, mac), error=True, sd_notify=True)
         else:
             print('Internal name: "{}"'.format(name_clean))
@@ -206,10 +209,12 @@ def pool_sensors(sensor_type, sensors, parameters):
             try:
                 sensor['poller'].fill_cache()
                 sensor['poller'].parameter_value(MI_BATTERY)
-            except (IOError, BluetoothBackendException, BTLEDisconnectError):
+            except (IOError, BluetoothBackendException, BTLEException, RuntimeError, BrokenPipeError) as e:
                 attempts = attempts - 1
                 if attempts > 0:
                     print_line('Retrying ...', warning = True)
+                    if len(str(e))>0:
+                        print_line('\tDue to: {}'.format(e), error=True)
                 sensor['poller']._cache = None
                 sensor['poller']._last_read = None
 
@@ -260,7 +265,7 @@ def pool_sensors(sensor_type, sensors, parameters):
                 print_line('Publishing data to MQTT topic "/devices/{}/controls/{}"'.format(sensor_name, param))
                 mqtt_client.publish('/devices/{}/controls/{}'.format(sensor_name, param), value, retain=True)
             mqtt_client.publish('/devices/{}/controls/{}'.format(sensor_name, 'timestamp'), strftime('%Y-%m-%d %H:%M:%S', localtime()), retain=True)
-            sleep(1)  # some slack for the publish roundtrip and callback function
+            sleep(0.5)  # some slack for the publish roundtrip and callback function
         elif reporting_mode == 'json':
             data['timestamp'] = strftime('%Y-%m-%d %H:%M:%S', localtime())
             data['name'] = sensor_name
@@ -270,6 +275,35 @@ def pool_sensors(sensor_type, sensors, parameters):
             print('Data for "{}": {}'.format(sensor_name, json.dumps(data)))
         else:
             raise NameError('Unexpected reporting_mode.')
+        print()
+
+class sensorPooler(threading.Thread):
+   def __init__(self, sensor_type, sensors, sensor_parameters, sleep_period, hciLock):
+      threading.Thread.__init__(self)
+      self.sensor_type = sensor_type
+      self.sensor_type_name = sensor_type_to_name(sensor_type)
+      self.sensors = sensors
+      self.sensor_parameters = sensor_parameters
+      self.sleep_period = sleep_period
+      self.hciLock = hciLock
+      self.daemon = True
+      self.start()
+
+   def run(self):
+        print_line('Worker for {} sensors started'.format(self.sensor_type_name), sd_notify=True)
+        # Sensor data retrieving and publishing
+        while True:
+            with self.hciLock:
+                pool_sensors(self.sensor_type, self.sensors, self.sensor_parameters)
+
+            if daemon_enabled:
+                print_line('Sleeping for {} ({} seconds) ...'.format(self.sensor_type_name, self.sleep_period))
+                print()
+                sleep(self.sleep_period)
+            else:
+                break
+
+        print_line('Execution finished for {}'.format(self.sensor_type_name), sd_notify=True)
         print()
 
 # Load configuration file
@@ -476,10 +510,11 @@ elif reporting_mode == 'wirenboard-mqtt':
         mqtt_client.publish('{}/moisture/meta/type'.format(topic_path), 'rel_humidity', 1, True)
         mqtt_client.publish('{}/temperature/meta/type'.format(topic_path), 'temperature', 1, True)
         mqtt_client.publish('{}/timestamp/meta/type'.format(topic_path), 'text', 1, True)
+    sleep(0.5) # some slack for the publish roundtrip and callback function
 
     for [mitempbt_name, mitempbt] in mitempbts.items():
         mqtt_client.publish('/devices/{}/meta/name'.format(mitempbt_name), mitempbt_name, 1, True)
-        topic_path = '/device s/{}/controls'.format(mitempbt_name)
+        topic_path = '/devices/{}/controls'.format(mitempbt_name)
         mqtt_client.publish('{}/battery/meta/type'.format(topic_path), 'value', 1, True)
         mqtt_client.publish('{}/battery/meta/units'.format(topic_path), '%', 1, True)
         mqtt_client.publish('{}/humidity/meta/type'.format(topic_path), 'rel_humidity', 1, True)
@@ -490,44 +525,14 @@ elif reporting_mode == 'wirenboard-mqtt':
 
 print_line('Initialization complete, starting MQTT publish loop', console=False, sd_notify=True)
 
-
-class sensorPooler(threading.Thread):
-   def __init__(self, sensor_type, sensors, sensor_parameters, sleep_period):
-      threading.Thread.__init__(self)
-      self.sensor_type = sensor_type
-      self.sensors = sensors
-      self.sensor_parameters = sensor_parameters
-      self.sleep_period = sleep_period
-      self.daemon = True
-   def run(self):
-        sensor_type_name = sensor_type_to_name(self.sensor_type)
-        print_line('Worker for {} sensors started'.format(sensor_type_name), sd_notify=True)
-        # Sensor data retrieving and publishing
-        while True:
-            hciLock.acquire()
-            pool_sensors(self.sensor_type, self.sensors, self.sensor_parameters)
-            hciLock.release()
-            if daemon_enabled:
-                print_line('Sleeping for {} ({} seconds) ...'.format(sensor_type_name, self.sleep_period))
-                print()
-                sleep(self.sleep_period)
-            else:
-                print_line('Execution finished for {} in non-daemon-mode'.format(sensor_type_name), sd_notify=True)
-                print()
-                break
-
 hciLock = threading.Lock()
 threads = []
 
 if len(mifloras) != 0:
-    mifloraThread = sensorPooler(sensor_type_miflora, mifloras, miflora_parameters, miflora_sleep_period)
-    mifloraThread.start()
-    threads.append(mifloraThread)
+    threads.append(sensorPooler(sensor_type_miflora, mifloras, miflora_parameters, miflora_sleep_period, hciLock))
 
 if len(mitempbts) != 0:
-    mitempbtThread = sensorPooler(sensor_type_mitempbt, mitempbts, mitempbt_parameters, mitempbt_sleep_period)
-    mitempbtThread.start()
-    threads.append(mitempbtThread)
+    threads.append(sensorPooler(sensor_type_mitempbt, mitempbts, mitempbt_parameters, mitempbt_sleep_period, hciLock))
 
 for thread in threads:
    thread.join()
