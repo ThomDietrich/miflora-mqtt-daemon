@@ -185,7 +185,7 @@ This data can be subscribed to and processed by other applications, like [openHA
 Enjoy!
 
 
-### openHAB
+### openHAB (v1.x MQTT Binding)
 
 To make further processing of the sensor readings as easy as possible, the program has an integrated generator for openHAB Items definitions.
 To generate a complete listing of Items, which you can then copy and adapt to your openHAB setup, execute:
@@ -217,19 +217,13 @@ Number Balcony_Petunia_Light "Balcony Petunia Sunlight Intensity [%d lux]" <text
 Paste the presented items definition into an openHAB items file and you are ready to go.
 Be sure to install the used MQTT Binding and JSONPath Transformation openHAB addons beforehand.
 
-### ThingsBoard
+### openHAB (v2.x MQTT Binding) with internal broker 
 
-to integrate with [ThingsBoard.io](https://thingsboard.io/):
+The following shows an example of a textual configuration using the new MQTT plugin introduced with openHAB 2.4. The example also uses the new internal broker.
 
-1. in your `config.ini` set `reporting_method = thingsboard-json`
-1. in your `config.ini` assign unique sensor names for your plants
-1. on the ThingsBoard platform create devices and use `Access token` as `Credential type` and the chosen sensor name as token
+#### Thing file
 
-## Openhab with the internal broker (since v2.4)
-In the following is an example of a textual configuration using the new MQTT plugin from Openhab 2.4 with the internal broker.
-
-### Thing file
-```
+```java
 Bridge mqtt:systemBroker:MqttBroker "MQTT Broker" [ brokerid="embedded-mqtt-broker" ]
 {
     Thing topic FicusBenjamin "Ficus Benjamin"
@@ -244,14 +238,24 @@ Bridge mqtt:systemBroker:MqttBroker "MQTT Broker" [ brokerid="embedded-mqtt-brok
 }
 ```
 
-### Item file
-```
+#### Item file
+
+```java
 Number:Illuminance      Miflora_Ficus_Light         "Light Intensity Ficus [%d lx]"     <light>         { channel="mqtt:topic:MqttBroker:FicusBenjamin:light" }
 Number:Dimensionless    Miflora_Ficus_Battery       "Battery Charge Ficus [%d %%]"      <battery>       { channel="mqtt:topic:MqttBroker:FicusBenjamin:battery" }
 Number:Temperature      Miflora_Ficus_Temperature   "Temperature Ficus [%.1f °C]"       <temperature>   { channel="mqtt:topic:MqttBroker:FicusBenjamin:temperature" }
 Number                  Miflora_Ficus_Conductivity  "Soil Fertility Ficus [%d µS/cm]"   <lawnmower>     { channel="mqtt:topic:MqttBroker:FicusBenjamin:conductivity" }
 Number:Dimensionless    Miflora_Ficus_Moisture      "Soil Moisture Ficus [%d %%]"       <humidity>      { channel="mqtt:topic:MqttBroker:FicusBenjamin:moisture" }
 ```
+
+### ThingsBoard
+
+to integrate with [ThingsBoard.io](https://thingsboard.io/):
+
+1. in your `config.ini` set `reporting_method = thingsboard-json`
+1. in your `config.ini` assign unique sensor names for your plants
+1. on the ThingsBoard platform create devices and use `Access token` as `Credential type` and the chosen sensor name as token
+
 
 ----
 
