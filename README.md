@@ -235,9 +235,9 @@ Bridge mqtt:systemBroker:MqttBroker "MQTT Broker" [ brokerid="embedded-mqtt-brok
     Thing topic FicusBenjamin "Ficus Benjamin"
     {
         Channels:
-            Type number : light         "Light Intensity"           [ stateTopic="miflora/FicusBenjamin", transformationPattern="JSONPATH:$.light" ]
-            Type number : battery       "Battery Charge"        [ stateTopic="miflora/FicusBenjamin", transformationPattern="JSONPATH:$.battery" ]
-            Type number : temperature   "Temperature"        [ stateTopic="miflora/FicusBenjamin", transformationPattern="JSONPATH:$.temperature" ]
+            Type number : light         "Light Intensity"   [ stateTopic="miflora/FicusBenjamin", transformationPattern="JSONPATH:$.light" ]
+            Type number : battery       "Battery Charge"    [ stateTopic="miflora/FicusBenjamin", transformationPattern="JSONPATH:$.battery" ]
+            Type number : temperature   "Temperature"       [ stateTopic="miflora/FicusBenjamin", transformationPattern="JSONPATH:$.temperature" ]
             Type number : conductivity  "Soil Fertility"    [ stateTopic="miflora/FicusBenjamin", transformationPattern="JSONPATH:$.conductivity" ]
             Type number : moisture      "Soil Moisture"     [ stateTopic="miflora/FicusBenjamin", transformationPattern="JSONPATH:$.moisture" ]
     }
@@ -246,9 +246,9 @@ Bridge mqtt:systemBroker:MqttBroker "MQTT Broker" [ brokerid="embedded-mqtt-brok
 
 ### Item file
 ```
-Number:Illuminance      Miflora_Ficus_Light         "Light Intensit Ficus [%d lx]"             <light>         { channel="mqtt:topic:MqttBroker:FicusBenjamin:light" }
-Number:Dimensionless    Miflora_Ficus_Battery       "Battery Charge Ficus [%d %%]"          <battery>       { channel="mqtt:topic:MqttBroker:FicusBenjamin:battery" }
-Number:Temperature      Miflora_Ficus_Temperature   "Temperature Ficus [%.1f °C]"        <temperature>   { channel="mqtt:topic:MqttBroker:FicusBenjamin:temperature" }
+Number:Illuminance      Miflora_Ficus_Light         "Light Intensity Ficus [%d lx]"     <light>         { channel="mqtt:topic:MqttBroker:FicusBenjamin:light" }
+Number:Dimensionless    Miflora_Ficus_Battery       "Battery Charge Ficus [%d %%]"      <battery>       { channel="mqtt:topic:MqttBroker:FicusBenjamin:battery" }
+Number:Temperature      Miflora_Ficus_Temperature   "Temperature Ficus [%.1f °C]"       <temperature>   { channel="mqtt:topic:MqttBroker:FicusBenjamin:temperature" }
 Number                  Miflora_Ficus_Conductivity  "Soil Fertility Ficus [%d µS/cm]"   <lawnmower>     { channel="mqtt:topic:MqttBroker:FicusBenjamin:conductivity" }
 Number:Dimensionless    Miflora_Ficus_Moisture      "Soil Moisture Ficus [%d %%]"       <humidity>      { channel="mqtt:topic:MqttBroker:FicusBenjamin:moisture" }
 ```
