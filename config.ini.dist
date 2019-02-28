@@ -50,7 +50,7 @@
 
 # The MQTT base topic to publish all Mi Flora sensor data topics under.
 # Default depends on the configured reporting_method
-#base_topic = miflora                   # Default for: mqtt-json, mqtt-smarthome
+#base_topic = misensor                  # Default for: mqtt-json, mqtt-smarthome
 #base_topic = homie                     # Default for: mqtt-homie
 #base_topic = homeassistant             # Default for: homeassistant-mqtt
 #base_topic = v1/devices/me/telemetry   # Default for: thingsboard-json
