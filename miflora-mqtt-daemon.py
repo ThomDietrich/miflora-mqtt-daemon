@@ -122,10 +122,10 @@ config_dir = parse_args.config_dir
 config = ConfigParser(delimiters=('=', ))
 config.optionxform = str
 try:
-    with open([os.path.join(config_dir, 'config.ini.dist'), os.path.join(config_dir, 'config.ini')]) as config_file:
+    with open(os.path.join(config_dir, 'config.ini')) as config_file:
         config.readfp(config_file)
 except IOError:
-    print_line('No sensors found in configuration file "config.ini"', error=True, sd_notify=True) 
+    print_line('No configuration file "config.ini"', error=True, sd_notify=True) 
     sys.exit(1) 
 
 reporting_mode = config['General'].get('reporting_method', 'mqtt-json')
