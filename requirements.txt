@@ -1,5 +1,5 @@
 #git+https://github.com/open-homeautomation/miflora.git#egg=miflora
-miflora==0.4
+miflora==0.6
 paho-mqtt==1.4.0
 wheel==0.29.0
 sdnotify==0.3.1
