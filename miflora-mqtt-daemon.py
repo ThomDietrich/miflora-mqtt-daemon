@@ -201,7 +201,7 @@ sd_notifier.notify('READY=1')
 # Initialize Mi Flora sensors
 flores = OrderedDict()
 for [name, mac] in config['Sensors'].items():
-    if not re.match("C4:7C:8D:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}", mac):
+    if not re.match("[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}", mac.lower()):
         print_line('The MAC address "{}" seems to be in the wrong format. Please check your configuration'.format(mac), error=True, sd_notify=True)
         sys.exit(1)
 
