@@ -22,7 +22,7 @@ before_install:
 
 before_script:
     # Set BUILD_VERSION
-    - if [ ! -z "${TRAVIS_TAG}" ]; then export BUILD_VERSION=${TRAVIS_TAG}; else export BUILD_VERSION=v2.3.8; fi
+    - if [ ! -z "${TRAVIS_TAG}" ]; then export BUILD_VERSION=${TRAVIS_TAG}; else export BUILD_VERSION=v1.1.0; fi
 
 script:
     # Build Docker image
@@ -41,7 +41,7 @@ script:
         echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
 
         # Push Docker image
-       /.docker/docker.sh push
+       ./.docker/docker.sh push
 
         # Docker Logout
         docker logout

@@ -1,6 +1,0 @@
-miflora==0.6
-paho-mqtt==1.5.0
-wheel==0.33.6
-sdnotify==0.3.2
-colorama==0.4.3
-Unidecode==1.1.1

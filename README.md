@@ -1,251 +1,118 @@
-# Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon
+# Docker images for miflora-mqtt-daemon
 
-A simple Linux python script to query arbitrary Mi Flora plant sensor devices and send the data to an **MQTT** broker,
-e.g., the famous [Eclipse Mosquitto](https://projects.eclipse.org/projects/technology.mosquitto).
-After data made the hop to the MQTT broker it can be used by home automation software, like [openHAB](https://openhab.org) or Home Assistant.
+_A simple Linux python script to query arbitrary Mi Flora plant sensor devices and send the data to an **MQTT** broker._
 
-![Demo gif for command line execution](demo.gif)
+For more info: [miflora-mqtt-daemon](https://github.com/ThomDietrich/miflora-mqtt-daemon)
 
-The program can be executed in **daemon mode** to run continuously in the background, e.g., as a systemd service.
+All credits go to Thom Dietrich for creating miflora-mqtt-daemon.
 
-## About Mi Flora
-* [Xiaomi Mi Flora sensors](https://xiaomi-mi.com/sockets-and-sensors/xiaomi-huahuacaocao-flower-care-smart-monitor) ([e.g. 12-17€](https://www.aliexpress.com/wholesale?SearchText=xiaomi+mi+flora+plant+sensor)) are meant to keep your plants alive by monitoring soil moisture, soil conductivity and light conditions
-* The sensor uses Bluetooth Low Energy (BLE) and has a rather limited range
-* A coin cell battery is used as power source, which should last between 1.5 to 2 years under normal conditions
-* Food for thought: The sensor can also be used for other things than plants, like in the [fridge](https://community.openhab.org/t/refrigerator-temperature-sensors/40076) or as [door and blind sensor](https://community.openhab.org/t/miflora-cheap-window-and-door-sensor-water-sensor-blind-sensor-etc/38232)
-
-## Features
-
-* Tested with Mi Flora firmware v2.6.2, v2.6.4, v2.6.6, v3.1.4, others anticipated
-* Build on top of [open-homeautomation/miflora](https://github.com/open-homeautomation/miflora)
-* Highly configurable
-* Data publication via MQTT
-* Configurable topic and payload:
-    * JSON encoded
-    * following the [Homie Convention v2.0.5](https://github.com/marvinroger/homie)
-    * following the [mqtt-smarthome architecture proposal](https://github.com/mqtt-smarthome/mqtt-smarthome)
-    * using the [HomeAssistant MQTT discovery format](https://home-assistant.io/docs/mqtt/discovery/)
-* Announcement messages to support auto-discovery services
-* MQTT authentication support
-* No special/root privileges needed
-* Daemon mode (default)
-* Systemd service, sd\_notify messages generated
-* MQTT-less mode, printing data directly to stdout/file
-* Automatic generation of openHAB items and rules
-* Reliable and intuitive
-* Tested on Raspberry Pi 3 and Raspberry Pi 0W
+[](demo.gif)
 
 
-![Promotional image](https://xiaomi-mi.com/uploads/ck/xiaomi-flower-monitor-001.jpg)
+# Image Variants
 
-### Readings
+[Miflora2mqtt](https://hub.docker.com/r/raymondmm/miflora2mqtt) Docker images come in different variations and are supported by manifest lists (auto-detect architecture). This makes it more easy to deploy in a multi architecture Docker environment. E.g. a Docker Swarm with mix of Raspberry Pi's and amd64 nodes. But also in a non-multi architecture Docker environment, there is no need to explicit add the tag for the architecture to use.
 
-The Mi Flora sensor offers the following plant and soil readings:
+All images are based on Alpine Linux.
 
-| Name            | Description |
-|-----------------|-------------|
-| `temperature`   | Air temperature, in [°C] (0.1°C resolution) |
-| `light`         | [Sunlight intensity](https://aquarium-digest.com/tag/lumenslux-requirements-of-a-cannabis-plant/), in [lux] |
-| `moisture`      | [Soil moisture](https://observant.zendesk.com/hc/en-us/articles/208067926-Monitoring-Soil-Moisture-for-Optimal-Crop-Growth), in [%] |
-| `conductivity`  | [Soil fertility](https://www.plantcaretools.com/measure-fertilization-with-ec-meters-for-plants-faq), in [µS/cm] |
-| `battery`       | Sensor battery level, in [%] |
+Supported architectures are: `amd64`, `arm32v6`, `arm32v7` and `arm64v8`.
 
-## Prerequisites
+# Usage
 
-An MQTT broker is needed as the counterpart for this daemon.
-Even though an MQTT-less mode is provided, it is not recommended for normal smart home automation integration.
-MQTT is huge help in connecting different parts of your smart home and setting up of a broker is quick and easy.
+## Docker run
 
-## Installation
-
-On a modern Linux system just a few steps are needed to get the daemon working.
-The following example shows the installation under Debian/Raspbian below the `/opt` directory:
-
-```shell
-sudo apt install git python3 python3-pip bluetooth bluez
-
-git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git /opt/miflora-mqtt-daemon
-
-cd /opt/miflora-mqtt-daemon
-sudo pip3 install -r requirements.txt
+```shell script
+docker run -it -e TZ=Europe/Amsterdam --network=host -v <host_path_to_config>:/config --name miflora raymondmm/miflora2mqtt:latest
 ```
 
-The daemon depends on `gatttool`, an external tool provided by the package `bluez` installed just now.
-Make sure gatttool is available on your system by executing the command once:
+## Docker stack / compose
 
-```shell
-gatttool --help
+```yaml
+################################################################################
+# Miflora Stack
+################################################################################
+#$ docker stack deploy miflora --compose-file docker-compose-miflora.yml
+
+# hcitool lescan
+# sudo ip link set dev eth0 down && sudo ip link set dev eth0 up
+################################################################################
+version: "3.7"
+
+services:
+  miflora:
+    image: raymondmm/miflora2mqtt:latest
+    environment:
+      - TZ=Europe/Amsterdam
+    networks:
+      hostnet: {}
+    volumes:
+      - <host_path_to_config>:/config
+    deploy:
+      placement:
+        constraints: [node.hostname == rpi-2]
+      replicas: 1
+
+networks:
+  hostnet:
+    external: true
+    name: host
 ```
 
-## Configuration
+# Bluetooth
+Below a few steps to run on a Raspberry PI 3B with Ubuntu server installed.
 
-To match personal needs, all operation details can be configured using the file [`config.ini`](config.ini.dist).
-The file needs to be created first:
-
-```shell
-cp /opt/miflora-mqtt-daemon/config.{ini.dist,ini}
-vim /opt/miflora-mqtt-daemon/config.ini
+```shell script
+sudo apt install bluez
 ```
 
-**Attention:**
-You need to add at least one sensor to the configuration.
-Scan for available Mi Flora sensors in your proximity with the command:
+```shell script
+sudo ln -s /lib/firmware /etc/firmware
+```
 
-```shell
+Remove console=ttyAMA0,115200 from /boot/firmware/cmdline.txt
+
+```shell script
+sudo nano /boot/firmware/cmdline.txt
+```
+
+```shell script
+sudo hciattach /dev/ttyAMA0 bcm43xx 921600 -
+```
+
+## Verify
+```shell script
+dmesg | grep -i 'bluetooth'
+```
+
+```shell script
+sudo hcitool dev
+```
+
+```shell script
+sudo bluetoothctl -v
+```
+
+```shell script
 sudo hcitool lescan
 ```
 
-Interfacing your Mi Flora sensor with this program is harmless.
-The device will not be modified and will still work with the official Xiaomi app.
+## Cronjob
 
-## Execution
-
-A first test run is as easy as:
-
-```shell
-python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py
+```shell script
+sudo nano /etc/cron.hourly/hci0-restart
 ```
 
-With a correct configuration the result should look similar to the the screencap above.
-Pay attention to communication errors due to distance related weak BLE connections.
-
-Using the command line argument `--config`, a directory where to read the config.ini file from can be specified, e.g.
-
-```shell
-python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py --config /opt/miflora-config
+```shell script
+#!/bin/bash
+hciconfig hci0 down
+hciconfig hci0 up
+hcitool lescan
 ```
 
-The extensive output can be reduced to error messages:
-
-```shell
-python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py > /dev/null
+```shell script
+sudo chmod 755 /etc/cron.hourly/hci0-restart
 ```
 
-### Continuous Daemon/Service
-
-You most probably want to execute the program **continuously in the background**.
-This can be done either by using the internal daemon or cron.
-
-**Attention:** Daemon mode must be enabled in the configuration file (default).
-
-1. Systemd service - on systemd powered systems the **recommended** option
-
-   ```shell
-   sudo cp /opt/miflora-mqtt-daemon/template.service /etc/systemd/system/miflora.service
-
-   sudo systemctl daemon-reload
-
-   sudo systemctl start miflora.service
-   sudo systemctl status miflora.service
-
-   sudo systemctl enable miflora.service
-   ```
-
-1. Screen Shell - Run the program inside a [screen shell](https://www.howtoforge.com/linux_screen):
-
-   ```shell
-   screen -S miflora-mqtt-daemon -d -m python3 /path/to/miflora-mqtt-daemon.py
-   ```
-
-## Docker usage with pre-defined images
-[Docker Hub](https://hub.docker.com/r/raymondmm/miflora-mqtt/) provides pre-defined Docker images for:
-- arm32v6
-- arm32v7
-- arm64v8
-
-These images are pushed using manifest-list which means one doesn't need to provide tagging for the host architecture. Docker will determine automatically and pull the right image automatically.
-
-Running the container in interactive mode works like this:
-
-```shell
-docker run -it --name miflora-mqtt-daemon -v .:/config raymondmm/miflora-mqtt-daemon:latest
+```shell script
+sudo cat /var/log/syslog | grep CRON
 ```
-
-To run the container in daemon mode use `-d` flag:
-
-```shell
-docker run -d --name miflora-mqtt-daemon -v .:/config raymondmm/miflora-mqtt-daemon:latest
-```
-
-If for some reason one wants to use the image for a certain architecture, just add associated tag:
-
-```shell
-docker run -it --name miflora-mqtt-daemon -v .:/config raymondmm/miflora-mqtt-daemon:v0.1.0-alpine-arm32v6
-```
-
-or
-
-```shell
-docker run -it --name miflora-mqtt-daemon -v .:/config raymondmm/miflora-mqtt-daemon:v0.1.0-slim-arm32v7
-```
-
-or
-
-```shell
-docker run -it --name miflora-mqtt-daemon -v .:/config raymondmm/miflora-mqtt-daemon:v0.1.0-slim-arm64v8
-```
-
-### Docker persistence
-The `/config` volume can be used to provide a directory on the host which contains your `config.ini` file (e.g. the `.` in the above example could represent `/opt/miflora-mqtt-daemon`).
-You may need to tweak the network settings (e.g. `--network host`) for Docker depending on how your system is set up.
-
-### Build custom Docker image
-The Dockerfile in the root of the repository can be used to build a custom docker image from the sources with a command such as:
-
-```shell
-docker build -t miflora-mqtt-daemon .
-```
-
-## Integration
-
-In the "mqtt-json" reporting mode, data will be published to the MQTT broker topic "`miflora/sensorname`" (e.g. `miflora/petunia`, names configurable).
-An example:
-
-```json
-{"light": 5424, "moisture": 30, "temperature": 21.4, "conductivity": 1020, "battery": 100}
-```
-
-This data can be subscribed to and processed by other applications, like [openHAB](https://openhab.org).
-
-Enjoy!
-
-
-### openHAB
-
-To make further processing of the sensor readings as easy as possible, the program has an integrated generator for openHAB Items definitions.
-To generate a complete listing of Items, which you can then copy and adapt to your openHAB setup, execute:
-
-```shell
-python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py --gen-openhab
-```
-
-The following code snippet shows a simple example of how a Mi Flora openHAB Items file could look like for the above example:
-
-```java
-// miflora.items
-
-// Mi Flora specific groups
-Group gBattery "Mi Flora sensor battery level elements" (gAll)
-Group gTemperature "Mi Flora air temperature elements" (gAll)
-Group gMoisture "Mi Flora soil moisture elements" (gAll)
-Group gConductivity "Mi Flora soil conductivity/fertility elements" (gAll)
-Group gLight "Mi Flora sunlight intensity elements" (gAll)
-
-// Mi Flora "Big Blue Petunia" (C4:7C:8D:60:DC:E6)
-Number Balcony_Petunia_Battery "Balcony Petunia Sensor Battery Level [%d %%]" <text> (gBalcony, gBattery) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.battery)]"}
-Number Balcony_Petunia_Temperature "Balcony Petunia Air Temperature [%.1f °C]" <text> (gBalcony, gTemperature) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.temperature)]"}
-Number Balcony_Petunia_Moisture "Balcony Petunia Soil Moisture [%d %%]" <text> (gBalcony, gMoisture) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.moisture)]"}
-Number Balcony_Petunia_Conductivity "Balcony Petunia Soil Conductivity/Fertility [%d µS/cm]" <text> (gBalcony, gConductivity) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.conductivity)]"}
-Number Balcony_Petunia_Light "Balcony Petunia Sunlight Intensity [%d lux]" <text> (gBalcony, gLight) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.light)]"}
-```
-
-----
-
-#### Disclaimer and Legal
-
-> *Xiaomi* and *Mi Flora* are registered trademarks of *BEIJING XIAOMI TECHNOLOGY CO., LTD.*
->
-> This project is a community project not for commercial use.
-> The authors will not be held responsible in the event of device failure or withered plants.
->
-> This project is in no way affiliated with, authorized, maintained, sponsored or endorsed by *Xiaomi* or any of its affiliates or subsidiaries.
