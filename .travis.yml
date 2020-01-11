@@ -8,7 +8,6 @@ language: bash
 
 env:
     global:
-        - TARGET=raymondmm/miflora-mqtt
         - QEMU_VERSION=v4.0.0
         - DOCKER_FILE=Dockerfile.alpine
         - BASE=python:3.5-alpine3.10
