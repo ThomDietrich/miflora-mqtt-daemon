@@ -87,7 +87,6 @@ docker_manifest_list() {
     echo "DOCKER MANIFEST: Create and Push docker manifest lists."
     docker_manifest_list_version
     docker_manifest_list_latest
-    docker_manifest_list_version_os_arch
 }
 
 docker_manifest_list_version() {
