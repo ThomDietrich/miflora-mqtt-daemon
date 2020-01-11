@@ -1,25 +1,24 @@
 sudo: 'required'
 
-dist: xenial
+services:
+  - 'docker'
 
-services: docker
-
-language: bash
+language:
+  - 'bash'
 
 env:
     global:
         - TARGET=raymondmm/miflora-mqtt
-        - QEMU_VERSION=v4.0.0
-        - DOCKER_FILE=Dockerfile.alpine
-        - BASE=python:3.5-alpine3.10
+        - QEMU_VERSION=v3.0.0
     matrix:
-        - QEMU_ARCH=x86_64   ARCH=amd64
-        - QEMU_ARCH=arm      ARCH=arm32v6
-        - QEMU_ARCH=arm      ARCH=arm32v7
-        - QEMU_ARCH=aarch64  ARCH=arm64v8
+        - BUILD_FROM=arm32v6/python:3-alpine3.8 QEMU_ARCH=arm OS_ARCH=alpine-arm32v6 DOCKER_FILE=Dockerfile.alpine-tmpl
+        - BUILD_FROM=arm32v7/python:3-slim QEMU_ARCH=arm OS_ARCH=slim-arm32v7 DOCKER_FILE=Dockerfile.slim-tmpl
+        - BUILD_FROM=arm64v8/python:3-alpine3.8 QEMU_ARCH=aarch64 OS_ARCH=alpine-arm64v8 DOCKER_FILE=Dockerfile.alpine-tmpl
 
 before_install:
   - ./.docker/docker.sh prepare
+
+install: true
 
 before_script:
     # Set BUILD_VERSION
@@ -32,7 +31,7 @@ script:
     # Test Docker image
     - ./.docker/docker.sh test
 
-    # Push Docker image
+    # Push Docker image (TODO move to function)
     - >
       if [ ! -z "${TRAVIS_TAG}" ]; then
         # Tag Docker image
@@ -42,7 +41,7 @@ script:
         echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
 
         # Push Docker image
-       /.docker/docker.sh push
+        docker push ${TARGET}:${BUILD_VERSION}-${OS_ARCH}
 
         # Docker Logout
         docker logout
@@ -53,7 +52,7 @@ jobs:
         - stage: manifest
           if: tag =~ ^v
           script:
-              # Create and push Docker manifest lists
+              # Create and push Docker manifest lists (TODO move to function)
               # Docker Login
               - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 

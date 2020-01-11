@@ -1,9 +1,4 @@
 #!/bin/sh
-if [ ! -d "/config" ]; then
-  echo "/config directory doesn't exists, creating..."
-  mkdir /config
-fi
-
 if [ ! -f "/config/config.ini" ]; then
   echo 'Mi-Flora mqtt config.ini does not exists, create default'
   cp /opt/miflora-mqtt-daemon/config.ini.dist /config/config.ini

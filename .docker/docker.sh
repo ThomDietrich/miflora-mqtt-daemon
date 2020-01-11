@@ -40,38 +40,46 @@ docker_prepare() {
 docker_build() {
     # Build Docker image
     echo "DOCKER BUILD: Build Docker image."
+    echo "DOCKER BUILD: os arch - ${ARCH}."
+    echo "DOCKER BUILD: base - ${BASE}."
     echo "DOCKER BUILD: build version - ${BUILD_VERSION}."
-    echo "DOCKER BUILD: build from - ${BUILD_FROM}."
     echo "DOCKER BUILD: qemu arch - ${QEMU_ARCH}."
-    echo "DOCKER BUILD: os arch - ${OS_ARCH}."
     echo "DOCKER BUILD: docker file - ${DOCKER_FILE}."
 
-    docker build --build-arg BUILD_REF=${TRAVIS_COMMIT} --build-arg BUILD_DATE=$(date +"%Y-%m-%dT%H:%M:%SZ") --build-arg BUILD_VERSION=${BUILD_VERSION} --build-arg BUILD_FROM=${BUILD_FROM} --build-arg QEMU_ARCH=${QEMU_ARCH} --file ./.docker/${DOCKER_FILE} --tag ${TARGET}:build-${OS_ARCH} .
+    docker build \
+      --build-arg ARCH=${ARCH} \
+      --build-arg BASE=${BASE} \
+      --build-arg BUILD_REF=${TRAVIS_COMMIT} \
+      --build-arg BUILD_DATE=$(date +"%Y-%m-%dT%H:%M:%SZ") \
+      --build-arg BUILD_VERSION=${BUILD_VERSION} \
+      --build-arg QEMU_ARCH=${QEMU_ARCH} \
+      --file ./.docker/${DOCKER_FILE} \
+      --tag ${TARGET}:build .
 }
 
 docker_test() {
     echo "DOCKER TEST: Test Docker image."
-    echo "DOCKER TEST: testing image - test-${OS_ARCH}."
+    echo "DOCKER TEST: testing image -> ${TARGET}:build"
 
-    docker run -d --rm --name=test-${OS_ARCH} ${TARGET}:build-${OS_ARCH}
+    docker run -d --rm --name=testing ${TARGET}:build
     if [ $? -ne 0 ]; then
-       echo "DOCKER TEST: FAILED - Docker container test-${OS_ARCH} failed to start."
+       echo "DOCKER TEST: FAILED - Docker container testing failed to start."
        exit 1
     else
-       echo "DOCKER TEST: PASSED - Docker container test-${OS_ARCH} succeeded to start."
+       echo "DOCKER TEST: PASSED - Docker container testing succeeded to start."
     fi
 }
 
 docker_tag() {
     echo "DOCKER TAG: Tag Docker image."
-    echo "DOCKER TAG: tagging image - ${TARGET}:${BUILD_VERSION}-${OS_ARCH}."
-    docker tag ${TARGET}:build-${OS_ARCH} ${TARGET}:${BUILD_VERSION}-${OS_ARCH}
+    echo "DOCKER TAG: tagging image - ${TARGET}:${BUILD_VERSION}-${ARCH}."
+    docker tag ${TARGET}:build ${TARGET}:${BUILD_VERSION}-${ARCH}
 }
 
 docker_push() {
     echo "DOCKER PUSH: Push Docker image."
-    echo "DOCKER PUSH: pushing - ${TARGET}:${BUILD_VERSION}-${OS_ARCH}."
-    docker push ${TARGET}:${BUILD_VERSION}-${OS_ARCH}
+    echo "DOCKER PUSH: pushing - ${TARGET}:${BUILD_VERSION}-${ARCH}."
+    docker push ${TARGET}:${BUILD_VERSION}-${ARCH}
 }
 
 docker_manifest_list() {
@@ -83,72 +91,37 @@ docker_manifest_list() {
 }
 
 docker_manifest_list_version() {
-  # Manifest Create BUILD_VERSION
   echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${BUILD_VERSION}."
   docker manifest create ${TARGET}:${BUILD_VERSION} \
-      ${TARGET}:${BUILD_VERSION}-alpine-arm32v6 \
-      ${TARGET}:${BUILD_VERSION}-slim-arm32v7 \
-      ${TARGET}:${BUILD_VERSION}-alpine-arm64v8
+      ${TARGET}:${BUILD_VERSION}-amd64 \
+      ${TARGET}:${BUILD_VERSION}-arm32v6 \
+      ${TARGET}:${BUILD_VERSION}-arm32v7 \
+      ${TARGET}:${BUILD_VERSION}-arm64v8
 
-  # Manifest Annotate BUILD_VERSION
-  docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-alpine-arm32v6 --os=linux --arch=arm --variant=v6
-  docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-slim-arm32v7 --os=linux --arch=arm --variant=v7
-  docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-alpine-arm64v8 --os=linux --arch=arm64 --variant=v8
+  docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-arm32v6 --os=linux --arch=arm   --variant=v6
+  docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-arm32v7 --os=linux --arch=arm   --variant=v7
+  docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-arm64v8 --os=linux --arch=arm64 --variant=v8
 
-  # Manifest Push BUILD_VERSION
   docker manifest push ${TARGET}:${BUILD_VERSION}
+
+  docker run --rm mplatform/mquery ${TARGET}:${BUILD_VERSION}
 }
 
 docker_manifest_list_latest() {
-  # Manifest Create latest
   echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:latest."
   docker manifest create ${TARGET}:latest \
-      ${TARGET}:${BUILD_VERSION}-alpine-arm32v6 \
-      ${TARGET}:${BUILD_VERSION}-slim-arm32v7 \
-      ${TARGET}:${BUILD_VERSION}-alpine-arm64v8
+      ${TARGET}:${BUILD_VERSION}-amd64 \
+      ${TARGET}:${BUILD_VERSION}-arm32v6 \
+      ${TARGET}:${BUILD_VERSION}-arm32v7 \
+      ${TARGET}:${BUILD_VERSION}-arm64v8
 
-  # Manifest Annotate BUILD_VERSION
-  docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-alpine-arm32v6 --os=linux --arch=arm --variant=v6
-  docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-slim-arm32v7 --os=linux --arch=arm --variant=v7
-  docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-alpine-arm64v8 --os=linux --arch=arm64 --variant=v8
+  docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-arm32v6 --os=linux --arch=arm   --variant=v6
+  docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-arm32v7 --os=linux --arch=arm   --variant=v7
+  docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-arm64v8 --os=linux --arch=arm64 --variant=v8
 
-  # Manifest Push BUILD_VERSION
   docker manifest push ${TARGET}:latest
-}
 
-docker_manifest_list_version_os_arch() {
-  # Manifest Create alpine-arm32v6
-  echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${BUILD_VERSION}-alpine-arm32v6."
-  docker manifest create ${TARGET}:${BUILD_VERSION}-alpine-arm32v6 \
-    ${TARGET}:${BUILD_VERSION}-alpine-arm32v6
-
-  # Manifest Annotate alpine-arm32v6
-  docker manifest annotate ${TARGET}:${BUILD_VERSION}-alpine-arm32v6 ${TARGET}:${BUILD_VERSION}-alpine-arm32v6 --os=linux --arch=arm --variant=v6
-
-  # Manifest Push alpine-arm32v6
-  docker manifest push ${TARGET}:${BUILD_VERSION}-alpine-arm32v6
-
-  # Manifest Create slim-arm32v7
-  echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${BUILD_VERSION}-slim-arm32v7."
-  docker manifest create ${TARGET}:${BUILD_VERSION}-slim-arm32v7 \
-    ${TARGET}:${BUILD_VERSION}-slim-arm32v7
-
-  # Manifest Annotate slim-arm32v7
-  docker manifest annotate ${TARGET}:${BUILD_VERSION}-slim-arm32v7 ${TARGET}:${BUILD_VERSION}-slim-arm32v7 --os=linux --arch=arm --variant=v7
-
-  # Manifest Push slim-arm32v7
-  docker manifest push ${TARGET}:${BUILD_VERSION}-slim-arm32v7
-
-  # Manifest Create alpine-arm64v8
-  echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${BUILD_VERSION}-alpine-arm64v8."
-  docker manifest create ${TARGET}:${BUILD_VERSION}-alpine-arm64v8 \
-    ${TARGET}:${BUILD_VERSION}-alpine-arm64v8
-
-  # Manifest Annotate alpine-arm64v8
-  docker manifest annotate ${TARGET}:${BUILD_VERSION}-alpine-arm64v8 ${TARGET}:${BUILD_VERSION}-alpine-arm64v8 --os=linux --arch=arm64 --variant=v8
-
-  # Manifest Push alpine-arm64v8
-  docker manifest push ${TARGET}:${BUILD_VERSION}-alpine-arm64v8
+  docker run --rm mplatform/mquery ${TARGET}:latest
 }
 
 setup_dependencies() {
@@ -160,7 +133,6 @@ setup_dependencies() {
   # sudo pip install docker-compose || true
 
   docker info
-  # docker-compose --version
 }
 
 update_docker_configuration() {

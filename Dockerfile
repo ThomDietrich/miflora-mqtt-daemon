@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 
 RUN apt-get update && apt-get install -y bluez
 
-COPY requirements.txt requirements.txt
+COPY requirements_old.txt requirements.txt
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
