@@ -1,7 +1,7 @@
 [Unit]
 Description=Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon
 Documentation=https://github.com/ThomDietrich/miflora-mqtt-daemon
-After=bluetooth.service mosquitto.service
+After=network.target bluetooth.service mosquitto.service
 
 [Service]
 Type=notify
@@ -10,6 +10,8 @@ Group=daemon
 WorkingDirectory=/opt/miflora-mqtt-daemon/
 ExecStart=/opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py
 StandardOutput=null
+#StandardOutput=syslog
+#SyslogIdentifier=miflora
 StandardError=journal
 Environment=PYTHONUNBUFFERED=true
 Restart=always
