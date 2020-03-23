@@ -307,6 +307,15 @@ elif reporting_mode == 'homeassistant-mqtt':
             payload['name'] = "{} {}".format(flora_name, sensor.title())
             if 'device_class' in params:
                 payload['device_class'] = params['device_class']
+            payload['unique_id'] = "{}-{}".format(flora['mac'].lower().replace(":", ""), sensor)
+            payload['device'] = {
+                    'identifiers' : ["MiFlora{}".format(flora['mac'].lower().replace(":", ""))],
+                    'connections' : [["mac", flora['mac'].lower()]],
+                    'manufacturer' : 'Xiaomi',
+                    'name' : flora_name,
+                    'model' : 'HHCCJCY01',
+                    'sw_version': flora['firmware']
+            }
             mqtt_client.publish('{}/{}_{}/config'.format(topic_path, flora_name, sensor).lower(), json.dumps(payload), 1, True)
 elif reporting_mode == 'wirenboard-mqtt':
     print_line('Announcing Mi Flora devices to MQTT broker for auto-discovery ...')
