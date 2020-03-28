@@ -122,7 +122,12 @@ config_dir = parse_args.config_dir
 
 config = ConfigParser(delimiters=('=', ), inline_comment_prefixes=('#'))
 config.optionxform = str
-config.read([os.path.join(config_dir, 'config.ini.dist'), os.path.join(config_dir, 'config.ini')])
+try:
+    with open(os.path.join(config_dir, 'config.ini')) as config_file:
+        config.readfp(config_file)
+except IOError:
+    print_line('No configuration file "config.ini"', error=True, sd_notify=True) 
+    sys.exit(1) 
 
 reporting_mode = config['General'].get('reporting_method', 'mqtt-json')
 used_adapter = config['General'].get('adapter', 'hci0')
