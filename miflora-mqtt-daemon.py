@@ -297,16 +297,23 @@ elif reporting_mode == 'homeassistant-mqtt':
     print_line('Announcing Mi Flora devices to MQTT broker for auto-discovery ...')
     for [flora_name, flora] in flores.items():
         topic_path = '{}/sensor/{}'.format(base_topic, flora_name)
-        base_payload = {
-            "state_topic": "{}/state".format(topic_path).lower()
-        }
-        for sensor, params in parameters.items():
-            payload = dict(base_payload.items())
-            payload['unit_of_measurement'] = params['unit']
-            payload['value_template'] = "{{ value_json.%s }}" % (sensor, )
+        for [sensor, params] in parameters.items():
+            payload = OrderedDict()
             payload['name'] = "{} {}".format(flora_name, sensor.title())
+            payload['unique_id'] = "{}-{}".format(flora['mac'].lower().replace(":", ""), sensor)
+            payload['unit_of_measurement'] = params['unit']
             if 'device_class' in params:
                 payload['device_class'] = params['device_class']
+            payload['state_topic'] = "{}/state".format(topic_path).lower()
+            payload['value_template'] = "{{{{ value_json.{} }}}}".format(sensor)
+            payload['device'] = {
+                    'identifiers' : ["MiFlora{}".format(flora['mac'].lower().replace(":", ""))],
+                    'connections' : [["mac", flora['mac'].lower()]],
+                    'manufacturer' : 'Xiaomi',
+                    'name' : flora_name,
+                    'model' : 'HHCCJCY01',
+                    'sw_version': flora['firmware']
+            }
             mqtt_client.publish('{}/{}_{}/config'.format(topic_path, flora_name, sensor).lower(), json.dumps(payload), 1, True)
 elif reporting_mode == 'wirenboard-mqtt':
     print_line('Announcing Mi Flora devices to MQTT broker for auto-discovery ...')
