@@ -13,7 +13,7 @@ from colorama import Fore, Back, Style
 from configparser import ConfigParser
 from unidecode import unidecode
 from miflora.miflora_poller import MiFloraPoller, MI_BATTERY, MI_CONDUCTIVITY, MI_LIGHT, MI_MOISTURE, MI_TEMPERATURE
-from btlewrap import available_backends, BluepyBackend, GatttoolBackend, PygattBackend, BluetoothBackendException
+from btlewrap import BluepyBackend, GatttoolBackend, BluetoothBackendException
 import paho.mqtt.client as mqtt
 import sdnotify
 
@@ -217,7 +217,7 @@ for [name, mac] in config['Sensors'].items():
     print('Name:          "{}"'.format(name_pretty))
     #print_line('Attempting initial connection to Mi Flora sensor "{}" ({})'.format(name_pretty, mac), console=False, sd_notify=True)
 
-    flora_poller = MiFloraPoller(mac=mac, backend=GatttoolBackend, cache_timeout=miflora_cache_timeout, retries=3, adapter=used_adapter)
+    flora_poller = MiFloraPoller(mac=mac, backend=BluepyBackend, cache_timeout=miflora_cache_timeout, retries=3, adapter=used_adapter)
     flora['poller'] = flora_poller
     flora['name_pretty'] = name_pretty
     flora['mac'] = flora_poller._mac
@@ -237,6 +237,9 @@ for [name, mac] in config['Sensors'].items():
         print('MAC address:   {}'.format(flora_poller._mac))
         print('Firmware:      {}'.format(flora_poller.firmware_version()))
         print_line('Initial connection to Mi Flora sensor "{}" ({}) successful'.format(name_pretty, mac), sd_notify=True)
+        if int(flora_poller.firmware_version().replace(".", "")) < 319:
+            print_line('Mi Flora sensor with a firmware version before 3.1.9 is not supported. Please update now.'.format(name_pretty, mac), error=True, sd_notify=True)
+
     print()
     flores[name_clean] = flora
 
@@ -296,18 +299,26 @@ elif reporting_mode == 'mqtt-homie':
 elif reporting_mode == 'homeassistant-mqtt':
     print_line('Announcing Mi Flora devices to MQTT broker for auto-discovery ...')
     for [flora_name, flora] in flores.items():
-        topic_path = '{}/sensor/{}'.format(base_topic, flora_name)
-        base_payload = {
-            "state_topic": "{}/state".format(topic_path).lower()
-        }
-        for sensor, params in parameters.items():
-            payload = dict(base_payload.items())
-            payload['unit_of_measurement'] = params['unit']
-            payload['value_template'] = "{{ value_json.%s }}" % (sensor, )
+        state_topic = '{}/sensor/{}'.format(base_topic, flora_name.lower())
+        for [sensor, params] in parameters.items():
+            discovery_topic = 'homeassistant/sensor/{}_{}/config'.format(flora_name, sensor).lower()
+            payload = OrderedDict()
             payload['name'] = "{} {}".format(flora_name, sensor.title())
+            payload['unique_id'] = "{}-{}".format(flora['mac'].lower().replace(":", ""), sensor)
+            payload['unit_of_measurement'] = params['unit']
             if 'device_class' in params:
                 payload['device_class'] = params['device_class']
-            mqtt_client.publish('{}/{}_{}/config'.format(topic_path, flora_name, sensor).lower(), json.dumps(payload), 1, True)
+            payload['state_topic'] = state_topic
+            payload['value_template'] = "{{{{ value_json.{} }}}}".format(sensor)
+            payload['device'] = {
+                    'identifiers' : ["MiFlora{}".format(flora['mac'].lower().replace(":", ""))],
+                    'connections' : [["mac", flora['mac'].lower()]],
+                    'manufacturer' : 'Xiaomi',
+                    'name' : flora_name,
+                    'model' : 'MiFlora Plant Sensor (HHCCJCY01)',
+                    'sw_version': flora['firmware']
+            }
+            mqtt_client.publish(discovery_topic, json.dumps(payload), 1, True)
 elif reporting_mode == 'wirenboard-mqtt':
     print_line('Announcing Mi Flora devices to MQTT broker for auto-discovery ...')
     for [flora_name, flora] in flores.items():
@@ -374,8 +385,8 @@ while True:
             mqtt_client.publish('{}'.format(base_topic), json.dumps(data))
             sleep(0.5) # some slack for the publish roundtrip and callback function
         elif reporting_mode == 'homeassistant-mqtt':
-            print_line('Publishing to MQTT topic "{}/sensor/{}/state"'.format(base_topic, flora_name).lower())
-            mqtt_client.publish('{}/sensor/{}/state'.format(base_topic, flora_name).lower(), json.dumps(data))
+            print_line('Publishing to MQTT topic "{}/sensor/{}"'.format(base_topic, flora_name.lower()))
+            mqtt_client.publish('{}/sensor/{}'.format(base_topic, flora_name.lower()), json.dumps(data))
             sleep(0.5) # some slack for the publish roundtrip and callback function
         elif reporting_mode == 'mqtt-homie':
             print_line('Publishing data to MQTT base topic "{}/{}/{}"'.format(base_topic, device_id, flora_name))
