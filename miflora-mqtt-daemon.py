@@ -5,6 +5,7 @@ import sys
 import re
 import json
 import os.path
+import os
 import argparse
 from time import time, sleep, localtime, strftime
 from collections import OrderedDict
@@ -180,11 +181,14 @@ if reporting_mode in ['mqtt-json', 'mqtt-homie', 'mqtt-smarthome', 'homeassistan
             tls_version=ssl.PROTOCOL_SSLv23
         )
 
-    if config['MQTT'].get('username'):
-        mqtt_client.username_pw_set(config['MQTT'].get('username'), config['MQTT'].get('password', None))
+    mqtt_username = os.environ.get("MQTT_USERNAME", config['MQTT'].get('username'))
+    mqtt_password = os.environ.get("MQTT_PASSWORD", config['MQTT'].get('password', None))
+
+    if mqtt_username:
+        mqtt_client.username_pw_set(mqtt_username, mqtt_password)
     try:
-        mqtt_client.connect(config['MQTT'].get('hostname', 'localhost'),
-                            port=config['MQTT'].getint('port', 1883),
+        mqtt_client.connect(os.environ.get('MQTT_HOSTNAME', config['MQTT'].get('hostname', 'localhost')),
+                            port=int(os.environ.get('MQTT_PORT', config['MQTT'].get('port', '1883'))),
                             keepalive=config['MQTT'].getint('keepalive', 60))
     except:
         print_line('MQTT connection error. Please check your settings in the configuration file "config.ini"', error=True, sd_notify=True)

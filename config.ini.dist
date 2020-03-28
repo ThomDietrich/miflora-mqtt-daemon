@@ -2,6 +2,8 @@
 # Source: https://github.com/ThomDietrich/miflora-mqtt-daemon
 #
 # Uncomment and adapt all settings as needed.
+# Some settings can be configured by environment variables.
+# If an env variable is set, it takes precedence over settings in this file
 
 [General]
 
@@ -37,9 +39,11 @@
 [MQTT]
 
 # The hostname or IP address of the MQTT broker to connect to (Default: localhost)
+# Also read from the MQTT_HOSTNAME environment variable
 #hostname = localhost
 
 # The TCP port the MQTT broker is listening on (Default: 1883)
+# Also read from the MQTT_PORT environment variable
 #port = 1883
 
 # Maximum period in seconds between ping messages to the broker. (Default: 60)
@@ -56,6 +60,7 @@
 #homie_device_id = miflora-mqtt-daemon
 
 # The MQTT broker authentification credentials (Default: no authentication)
+# Will also read from MQTT_USERNAME and MQTT_PASSWORD environment variables
 #username = user
 #password = pwd123
 
