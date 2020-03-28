@@ -99,7 +99,7 @@ sudo hcitool lescan
 Interfacing your Mi Flora sensor with this program is harmless.
 The device will not be modified and will still work with the official Xiaomi app.
 
-Some configuration options can be set via environment variables, see config.ini.dist for details.
+Some configuration options can be set via environment variables, see `config.ini.dist` for details.
 
 ## Execution
 
