@@ -5,7 +5,6 @@ import sys
 import re
 import json
 import os.path
-import os
 import argparse
 from time import time, sleep, localtime, strftime
 from collections import OrderedDict
@@ -15,8 +14,11 @@ from configparser import ConfigParser
 from unidecode import unidecode
 from miflora.miflora_poller import MiFloraPoller, MI_BATTERY, MI_CONDUCTIVITY, MI_LIGHT, MI_MOISTURE, MI_TEMPERATURE
 from btlewrap import BluepyBackend, GatttoolBackend, BluetoothBackendException
+from bluepy.btle import BTLEException
 import paho.mqtt.client as mqtt
 import sdnotify
+from signal import signal, SIGPIPE, SIG_DFL
+signal(SIGPIPE,SIG_DFL)
 
 project_name = 'Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon'
 project_url = 'https://github.com/ThomDietrich/miflora-mqtt-daemon'
@@ -31,7 +33,7 @@ parameters = OrderedDict([
 
 if False:
     # will be caught by python 2.7 to be illegal syntax
-    print('Sorry, this script requires a python3 runtime environemt.', file=sys.stderr)
+    print('Sorry, this script requires a python3 runtime environment.', file=sys.stderr)
 
 # Argparse
 parser = argparse.ArgumentParser(description=project_name, epilog='For further details see: ' + project_url)
@@ -221,10 +223,10 @@ for [name, mac] in config['Sensors'].items():
     name_clean = clean_identifier(name_pretty)
     location_clean = clean_identifier(location_pretty)
 
-    flora = dict()
+    flora = OrderedDict()
     print('Adding sensor to device list and testing connection ...')
     print('Name:          "{}"'.format(name_pretty))
-    #print_line('Attempting initial connection to Mi Flora sensor "{}" ({})'.format(name_pretty, mac), console=False, sd_notify=True)
+    # print_line('Attempting initial connection to Mi Flora sensor "{}" ({})'.format(name_pretty, mac), console=False, sd_notify=True)
 
     flora_poller = MiFloraPoller(mac=mac, backend=BluepyBackend, cache_timeout=miflora_cache_timeout, retries=3, adapter=used_adapter)
     flora['poller'] = flora_poller
@@ -238,8 +240,8 @@ for [name, mac] in config['Sensors'].items():
         flora_poller.fill_cache()
         flora_poller.parameter_value(MI_LIGHT)
         flora['firmware'] = flora_poller.firmware_version()
-    except (IOError, BluetoothBackendException):
-        print_line('Initial connection to Mi Flora sensor "{}" ({}) failed.'.format(name_pretty, mac), error=True, sd_notify=True)
+    except (IOError, BluetoothBackendException, BTLEException, RuntimeError, BrokenPipeError) as e:
+        print_line('Initial connection to Mi Flora sensor "{}" ({}) failed due to exception: {}'.format(name_pretty, mac, e), error=True, sd_notify=True)
     else:
         print('Internal name: "{}"'.format(name_clean))
         print('Device name:   "{}"'.format(flora_poller.name()))
@@ -361,10 +363,13 @@ while True:
             try:
                 flora['poller'].fill_cache()
                 flora['poller'].parameter_value(MI_LIGHT)
-            except (IOError, BluetoothBackendException):
+            except (IOError, BluetoothBackendException, BTLEException, RuntimeError, BrokenPipeError) as e:
                 attempts = attempts - 1
                 if attempts > 0:
-                    print_line('Retrying ...', warning = True)
+                    if len(str(e)) > 0:
+                        print_line('Retrying due to exception: {}'.format(e), error=True)
+                    else:
+                        print_line('Retrying ...', warning=True)
                 flora['poller']._cache = None
                 flora['poller']._last_read = None
 
