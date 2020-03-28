@@ -26,6 +26,7 @@ The program can be executed in **daemon mode** to run continuously in the backgr
     * following the [mqtt-smarthome architecture proposal](https://github.com/mqtt-smarthome/mqtt-smarthome)
     * using the [HomeAssistant MQTT discovery format](https://home-assistant.io/docs/mqtt/discovery/)
     * using the [ThingsBoard.io](https://thingsboard.io/) MQTT interface
+    * following the [Wiren Board MQTT Conventions](https://github.com/contactless/homeui/blob/master/conventions.md)
 * Announcement messages to support auto-discovery services
 * MQTT authentication support
 * No special/root privileges needed
@@ -35,6 +36,7 @@ The program can be executed in **daemon mode** to run continuously in the backgr
 * Automatic generation of openHAB items and rules
 * Reliable and intuitive
 * Tested on Raspberry Pi 3 and Raspberry Pi 0W
+* Tested on Wiren Board 5 (Debian Stretch)
 
 
 ![Promotional image](https://xiaomi-mi.com/uploads/ck/xiaomi-flower-monitor-001.jpg)
@@ -132,7 +134,7 @@ This can be done either by using the internal daemon or cron.
 **Attention:** Daemon mode must be enabled in the configuration file (default).
 
 1. Systemd service - on systemd powered systems the **recommended** option
-   
+
    ```shell
    sudo cp /opt/miflora-mqtt-daemon/template.service /etc/systemd/system/miflora.service
 
@@ -145,7 +147,7 @@ This can be done either by using the internal daemon or cron.
    ```
 
 1. Screen Shell - Run the program inside a [screen shell](https://www.howtoforge.com/linux_screen):
-   
+
    ```shell
    screen -S miflora-mqtt-daemon -d -m python3 /path/to/miflora-mqtt-daemon.py
    ```
@@ -219,7 +221,7 @@ Number Balcony_Petunia_Light "Balcony Petunia Sunlight Intensity [%d lux]" <text
 Paste the presented items definition into an openHAB items file and you are ready to go.
 Be sure to install the used MQTT Binding and JSONPath Transformation openHAB addons beforehand.
 
-### openHAB (v2.x MQTT Binding) with internal broker 
+### openHAB (v2.x MQTT Binding) with internal broker
 
 The following shows an example of a textual configuration using the new MQTT plugin introduced with openHAB 2.4. The example also uses the new internal broker.
 
@@ -258,14 +260,22 @@ to integrate with [ThingsBoard.io](https://thingsboard.io/):
 1. in your `config.ini` assign unique sensor names for your plants
 1. on the ThingsBoard platform create devices and use `Access token` as `Credential type` and the chosen sensor name as token
 
+### Wiren Board
+
+To integrate with [Wiren Board](https://wirenboard.com/en/) in your `config.ini` set:
+
+1. `reporting_method = wirenboard-mqtt`
+1. set `hostname` with address of [Wiren Board](https://wirenboard.com/en/) controller and optionally  `username` and `password`
+
+Your sensors will automatically appear on [Wiren Board](https://wirenboard.com/en/) as separate devices.
 
 ----
 
 #### Disclaimer and Legal
 
 > *Xiaomi* and *Mi Flora* are registered trademarks of *BEIJING XIAOMI TECHNOLOGY CO., LTD.*
-> 
+>
 > This project is a community project not for commercial use.
 > The authors will not be held responsible in the event of device failure or withered plants.
-> 
+>
 > This project is in no way affiliated with, authorized, maintained, sponsored or endorsed by *Xiaomi* or any of its affiliates or subsidiaries.
