@@ -128,8 +128,8 @@ try:
     with open(os.path.join(config_dir, 'config.ini')) as config_file:
         config.readfp(config_file)
 except IOError:
-    print_line('No configuration file "config.ini"', error=True, sd_notify=True) 
-    sys.exit(1) 
+    print_line('No configuration file "config.ini"', error=True, sd_notify=True)
+    sys.exit(1)
 
 reporting_mode = config['General'].get('reporting_method', 'mqtt-json')
 used_adapter = config['General'].get('adapter', 'hci0')
@@ -310,9 +310,9 @@ elif reporting_mode == 'mqtt-homie':
 elif reporting_mode == 'homeassistant-mqtt':
     print_line('Announcing Mi Flora devices to MQTT broker for auto-discovery ...')
     for [flora_name, flora] in flores.items():
-        state_topic = '{}/sensor/{}'.format(base_topic, flora_name.lower())
+        state_topic = '{}/sensor/{}/state'.format(base_topic, flora_name.lower())
         for [sensor, params] in parameters.items():
-            discovery_topic = 'homeassistant/sensor/{}_{}/config'.format(flora_name, sensor).lower()
+            discovery_topic = 'homeassistant/sensor/{}/{}/config'.format(flora_name.lower(), sensor)
             payload = OrderedDict()
             payload['name'] = "{} {}".format(flora_name, sensor.title())
             payload['unique_id'] = "{}-{}".format(flora['mac'].lower().replace(":", ""), sensor)
@@ -399,8 +399,8 @@ while True:
             mqtt_client.publish('{}'.format(base_topic), json.dumps(data))
             sleep(0.5) # some slack for the publish roundtrip and callback function
         elif reporting_mode == 'homeassistant-mqtt':
-            print_line('Publishing to MQTT topic "{}/sensor/{}"'.format(base_topic, flora_name.lower()))
-            mqtt_client.publish('{}/sensor/{}'.format(base_topic, flora_name.lower()), json.dumps(data))
+            print_line('Publishing to MQTT topic "{}/sensor/{}/state"'.format(base_topic, flora_name.lower()))
+            mqtt_client.publish('{}/sensor/{}/state'.format(base_topic, flora_name.lower()), json.dumps(data))
             sleep(0.5) # some slack for the publish roundtrip and callback function
         elif reporting_mode == 'mqtt-homie':
             print_line('Publishing data to MQTT base topic "{}/{}/{}"'.format(base_topic, device_id, flora_name))

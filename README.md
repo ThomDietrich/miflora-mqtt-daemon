@@ -16,7 +16,8 @@ The program can be executed in **daemon mode** to run continuously in the backgr
 
 ## Features
 
-* Tested with Mi Flora firmware v2.6.2, v2.6.4, v2.6.6, v3.1.4, others anticipated
+* Tested with Mi Flora firmware 3.2.1
+* Tested with VegTrug firmware 3.2.1 (MAC prefix "80:EA:CA")
 * Build on top of [open-homeautomation/miflora](https://github.com/open-homeautomation/miflora)
 * Highly configurable
 * Data publication via MQTT
