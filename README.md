@@ -18,9 +18,12 @@ The program can be executed in **daemon mode** to run continuously in the backgr
 
 * Tested with Mi Flora firmware 3.2.1
 * Tested with VegTrug firmware 3.2.1 (MAC prefix "80:EA:CA")
+* Tested on Raspberry Pi 3 and Raspberry Pi 0W
+* Tested on Wiren Board 5 (Debian Stretch)
 * Build on top of [open-homeautomation/miflora](https://github.com/open-homeautomation/miflora)
 * Highly configurable
 * Data publication via MQTT
+* Announcement messages for automatic discovery by smart home systems
 * Configurable topic and payload:
     * JSON encoded
     * following the [Homie Convention v2.0.5](https://github.com/marvinroger/homie)
@@ -28,16 +31,9 @@ The program can be executed in **daemon mode** to run continuously in the backgr
     * using the [HomeAssistant MQTT discovery format](https://home-assistant.io/docs/mqtt/discovery/)
     * using the [ThingsBoard.io](https://thingsboard.io/) MQTT interface
     * following the [Wiren Board MQTT Conventions](https://github.com/contactless/homeui/blob/master/conventions.md)
-* Announcement messages to support auto-discovery services
 * MQTT authentication support
 * No special/root privileges needed
-* Daemon mode (default)
-* Systemd service, sd\_notify messages generated
-* MQTT-less mode, printing data directly to stdout/file
-* Automatic generation of openHAB items and rules
-* Reliable and intuitive
-* Tested on Raspberry Pi 3 and Raspberry Pi 0W
-* Tested on Wiren Board 5 (Debian Stretch)
+* Linux daemon / systemd service, sd\_notify messages generated
 
 
 ![Promotional image](https://xiaomi-mi.com/uploads/ck/xiaomi-flower-monitor-001.jpg)
@@ -96,13 +92,21 @@ You need to add at least one sensor to the configuration.
 Scan for available Mi Flora sensors in your proximity with the command:
 
 ```shell
-sudo hcitool lescan
+$> sudo hcitool lescan
+
+LE Scan ...
+4B:47:E2:DE:CE:9A (unknown)
+C4:7C:8D:62:72:49 Flower care
+84:C0:EF:46:B2:8A (unknown)
+10:0B:F1:43:59:16 (unknown)
+C4:7C:8D:62:40:29 Flower care
 ```
 
+By the way:
 Interfacing your Mi Flora sensor with this program is harmless.
-The device will not be modified and will still work with the official Xiaomi app.
+The device will not be modified and will still work with the official smartphone app.
 
-Some configuration options can be set via environment variables, see `config.ini.dist` for details.
+Some configuration options can be set via environment variables, see `config.ini` for details.
 
 ## Execution
 
@@ -113,18 +117,12 @@ python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py
 ```
 
 With a correct configuration the result should look similar to the the screencap above.
-Pay attention to communication errors due to distance related weak BLE connections.
+Pay attention to communication errors due to distance related weak Bluetooth connections.
 
 Using the command line argument `--config`, a directory where to read the config.ini file from can be specified, e.g.
 
 ```shell
 python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py --config /opt/miflora-config
-```
-
-The extensive output can be reduced to error messages:
-
-```shell
-python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py > /dev/null
 ```
 
 ### Continuous Daemon/Service
@@ -145,12 +143,6 @@ This can be done either by using the internal daemon or cron.
    sudo systemctl status miflora.service
 
    sudo systemctl enable miflora.service
-   ```
-
-1. Screen Shell - Run the program inside a [screen shell](https://www.howtoforge.com/linux_screen):
-
-   ```shell
-   screen -S miflora-mqtt-daemon -d -m python3 /path/to/miflora-mqtt-daemon.py
    ```
 
 ## Usage with Docker
@@ -178,55 +170,24 @@ You may need to tweak the network settings (e.g. `--network host`) for Docker de
 
 ## Integration
 
-In the "mqtt-json" reporting mode, data will be published to the MQTT broker topic "`miflora/sensorname`" (e.g. `miflora/petunia`, names configurable).
+In the "mqtt-json" reporting mode, data will be published to the MQTT broker topic "`miflora/sensorname`" (e.g. `miflora/petunia`).
 An example:
 
 ```json
 {"light": 5424, "moisture": 30, "temperature": 21.4, "conductivity": 1020, "battery": 100}
 ```
 
-This data can be subscribed to and processed by other applications, like [openHAB](https://openhab.org).
+This data can be subscribed to and processed by other applications.
+From this point forward your options are endless.
 
 Enjoy!
 
+### openHAB
 
-### openHAB (v1.x MQTT Binding)
+The following shows an example of a textual configuration using the MQTT binding introduced with openHAB 2.4.
+The example also uses the new internal broker.
 
-To make further processing of the sensor readings as easy as possible, the program has an integrated generator for openHAB Items definitions.
-To generate a complete listing of Items, which you can then copy and adapt to your openHAB setup, execute:
-
-```shell
-python3 /opt/miflora-mqtt-daemon/miflora-mqtt-daemon.py --gen-openhab
-```
-
-The following code snippet shows a simple example of how a Mi Flora openHAB Items file could look like for the above example:
-
-```java
-// miflora.items
-
-// Mi Flora specific groups
-Group gBattery "Mi Flora sensor battery level elements" (gAll)
-Group gTemperature "Mi Flora air temperature elements" (gAll)
-Group gMoisture "Mi Flora soil moisture elements" (gAll)
-Group gConductivity "Mi Flora soil conductivity/fertility elements" (gAll)
-Group gLight "Mi Flora sunlight intensity elements" (gAll)
-
-// Mi Flora "Big Blue Petunia" (C4:7C:8D:60:DC:E6)
-Number Balcony_Petunia_Battery "Balcony Petunia Sensor Battery Level [%d %%]" <text> (gBalcony, gBattery) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.battery)]"}
-Number Balcony_Petunia_Temperature "Balcony Petunia Air Temperature [%.1f °C]" <text> (gBalcony, gTemperature) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.temperature)]"}
-Number Balcony_Petunia_Moisture "Balcony Petunia Soil Moisture [%d %%]" <text> (gBalcony, gMoisture) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.moisture)]"}
-Number Balcony_Petunia_Conductivity "Balcony Petunia Soil Conductivity/Fertility [%d µS/cm]" <text> (gBalcony, gConductivity) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.conductivity)]"}
-Number Balcony_Petunia_Light "Balcony Petunia Sunlight Intensity [%d lux]" <text> (gBalcony, gLight) {mqtt="<[broker:miflora/petunia:state:JSONPATH($.light)]"}
-```
-
-Paste the presented items definition into an openHAB items file and you are ready to go.
-Be sure to install the used MQTT Binding and JSONPath Transformation openHAB addons beforehand.
-
-### openHAB (v2.x MQTT Binding) with internal broker
-
-The following shows an example of a textual configuration using the new MQTT plugin introduced with openHAB 2.4. The example also uses the new internal broker.
-
-#### Thing file
+##### Thing file
 
 ```java
 Bridge mqtt:systemBroker:MqttBroker "MQTT Broker" [ brokerid="embedded-mqtt-broker" ]
@@ -243,7 +204,7 @@ Bridge mqtt:systemBroker:MqttBroker "MQTT Broker" [ brokerid="embedded-mqtt-brok
 }
 ```
 
-#### Item file
+##### Item file
 
 ```java
 Number:Illuminance      Miflora_Ficus_Light         "Light Intensity Ficus [%d lx]"     <light>         { channel="mqtt:topic:MqttBroker:FicusBenjamin:light" }
@@ -255,7 +216,7 @@ Number:Dimensionless    Miflora_Ficus_Moisture      "Soil Moisture Ficus [%d %%]
 
 ### ThingsBoard
 
-to integrate with [ThingsBoard.io](https://thingsboard.io/):
+To integrate with [ThingsBoard.io](https://thingsboard.io/):
 
 1. in your `config.ini` set `reporting_method = thingsboard-json`
 1. in your `config.ini` assign unique sensor names for your plants
@@ -272,7 +233,7 @@ Your sensors will automatically appear on [Wiren Board](https://wirenboard.com/e
 
 ----
 
-#### Disclaimer and Legal
+## Disclaimer and Legal
 
 > *Xiaomi* and *Mi Flora* are registered trademarks of *BEIJING XIAOMI TECHNOLOGY CO., LTD.*
 >
