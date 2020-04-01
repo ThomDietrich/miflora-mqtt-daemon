@@ -316,18 +316,18 @@ print_line('Initialization complete, starting MQTT publish loop', console=False,
 # Sensor data retrieval and publication
 while True:
     for [flora_name, flora] in flores.items():
-        data = dict()
+        data = OrderedDict()
         attempts = 2
         flora['poller']._cache = None
         flora['poller']._last_read = None
-        flora['stats']['count'] = flora['stats']['count'] + 1
+        flora['stats']['count'] += 1
         print_line('Retrieving data from sensor "{}" ...'.format(flora['name_pretty']))
         while attempts != 0 and not flora['poller']._cache:
             try:
                 flora['poller'].fill_cache()
                 flora['poller'].parameter_value(MI_LIGHT)
             except (IOError, BluetoothBackendException, BTLEException, RuntimeError, BrokenPipeError) as e:
-                attempts = attempts - 1
+                attempts -= 1
                 if attempts > 0:
                     if len(str(e)) > 0:
                         print_line('Retrying due to exception: {}'.format(e), error=True)
@@ -337,14 +337,14 @@ while True:
                 flora['poller']._last_read = None
 
         if not flora['poller']._cache:
-            flora['stats']['failure'] = flora['stats']['failure'] + 1
+            flora['stats']['failure'] += 1
             print_line('Failed to retrieve data from Mi Flora sensor "{}" ({}), success rate: {:.0%}'.format(
                 flora['name_pretty'], flora['mac'], flora['stats']['success']/flora['stats']['count']
                 ), error = True, sd_notify = True)
             print()
             continue
         else:
-            flora['stats']['success'] = flora['stats']['success'] + 1
+            flora['stats']['success'] += 1
 
         for param,_ in parameters.items():
             data[param] = flora['poller'].parameter_value(param)
