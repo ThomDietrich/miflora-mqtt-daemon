@@ -94,7 +94,7 @@ config = ConfigParser(delimiters=('=', ), inline_comment_prefixes=('#'))
 config.optionxform = str
 try:
     with open(os.path.join(config_dir, 'config.ini')) as config_file:
-        config.readfp(config_file)
+        config.read_file(config_file)
 except IOError:
     print_line('No configuration file "config.ini"', error=True, sd_notify=True)
     sys.exit(1)
