@@ -204,6 +204,7 @@ for [name, mac] in config['Sensors'].items():
     flora['location_clean'] = location_clean
     flora['location_pretty'] = location_pretty
     flora['stats'] = {"count": 0, "success": 0, "failure": 0}
+    flora['firmware'] = "0.0.0"
     try:
         flora_poller.fill_cache()
         flora_poller.parameter_value(MI_LIGHT)
