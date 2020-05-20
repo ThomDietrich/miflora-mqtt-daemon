@@ -238,7 +238,6 @@ elif reporting_mode == 'mqtt-homie':
     for [flora_name, flora] in flores.items():
         print_line('Connecting to MQTT broker for "{}" ...'.format(flora['name_pretty']))
         mqtt_client[flora_name.lower()] = mqtt.Client(flora_name.lower())
-        #mqtt_client[flora_name.lower()].max_inflight_messages_set(1000)
         mqtt_client[flora_name.lower()].on_connect = on_connect
         mqtt_client[flora_name.lower()].on_publish = on_publish
         mqtt_client[flora_name.lower()].will_set('{}/{}/$state'.format(base_topic, flora_name.lower()), payload='disconnected', retain=True)
