@@ -1,7 +1,7 @@
 #git+https://github.com/open-homeautomation/miflora.git#egg=miflora
-miflora==0.6
+miflora==0.7.1
 bluepy==1.3.0
-btlewrap==0.0.9
+btlewrap==0.0.10
 paho-mqtt==1.4.0
 wheel==0.29.0
 sdnotify==0.3.1
