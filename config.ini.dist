@@ -56,9 +56,6 @@
 #base_topic = v1/devices/me/telemetry   # Default for: thingsboard-json
 #base_topic =                           # Default for: wirenboard-mqtt
 
-# Homie specific: The device ID for this daemon instance (Default: miflora-mqtt-daemon)
-#homie_device_id = miflora-mqtt-daemon
-
 # The MQTT broker authentification credentials (Default: no authentication)
 # Will also read from MQTT_USERNAME and MQTT_PASSWORD environment variables
 #username = user
