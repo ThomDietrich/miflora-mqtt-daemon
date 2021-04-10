@@ -17,6 +17,8 @@
 #                       (https://github.com/mqtt-smarthome/mqtt-smarthome)
 #  homeassistant-mqtt - Publish to an MQTT broker following the HomeAssistant discovery format
 #                       (https://www.home-assistant.io/docs/mqtt/discovery/)
+#  gladys-mqtt        - Publish to an MQTT broker following the Gladys MQTT proposal
+#                       https://gladysassistant.com/fr/docs/integrations/mqtt
 #    thingsboard-json - Publish to the ThingsBoard MQTT broker
 #                       (https://thingsboard.io)
 #    wirenboard-mqtt -  Publish to the Wiren Board MQTT broker
@@ -55,7 +57,7 @@
 #base_topic = homie                     # Default for: mqtt-homie
 #base_topic = v1/devices/me/telemetry   # Default for: thingsboard-json
 #base_topic =                           # Default for: wirenboard-mqtt
-
+#base_topic = gladys/master/device
 # The MQTT broker authentification credentials (Default: no authentication)
 # Will also read from MQTT_USERNAME and MQTT_PASSWORD environment variables
 #username = user
