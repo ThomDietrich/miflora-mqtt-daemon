@@ -346,6 +346,23 @@ elif reporting_mode == 'homeassistant-mqtt':
                     'sw_version': flora['firmware']
             }
             mqtt_client.publish(discovery_topic, json.dumps(payload), 1, True)
+elif reporting_mode == 'gladys-mqtt':
+    print_line('Announcing Mi Flora devices to MQTT broker for auto-discovery ...')
+    
+    for [flora_name, flora] in flores.items():
+        topic_path = '{}/mqtt:miflora:{}/feature'.format(base_topic, flora_name.lower())
+        data = OrderedDict()
+        for param,_ in parameters.items():
+            data[param] = flora['poller'].parameter_value(param)
+        mqtt_client.publish('{}/mqtt:battery/state'.format(topic_path),data['battery'],1,True)
+        mqtt_client.publish('{}/mqtt:moisture/state'.format(topic_path),data['moisture'],1,True)
+        mqtt_client.publish('{}/mqtt:light/state'.format(topic_path),data['light'],1,True)
+        mqtt_client.publish('{}/mqtt:conductivity/state'.format(topic_path),data['conductivity'],1,True)
+        mqtt_client.publish('{}/mqtt:temperature/state'.format(topic_path),data['temperature'],1,True)
+
+
+    sleep(0.5) # some slack for the publish roundtrip and callback function
+    print()
 elif reporting_mode == 'wirenboard-mqtt':
     print_line('Announcing Mi Flora devices to MQTT broker for auto-discovery ...')
     for [flora_name, flora] in flores.items():
@@ -419,6 +436,10 @@ while True:
         elif reporting_mode == 'homeassistant-mqtt':
             print_line('Publishing to MQTT topic "{}/sensor/{}/state"'.format(base_topic, flora_name.lower()))
             mqtt_client.publish('{}/sensor/{}/state'.format(base_topic, flora_name.lower()), json.dumps(data))
+            sleep(0.5) # some slack for the publish roundtrip and callback function
+        elif reporting_mode == 'gladys-mqtt':
+            print_line('Publishing to MQTT topic "{}/mqtt:miflora:{}/feature"'.format(base_topic, flora_name.lower()))
+            mqtt_client.publish('{}/mqtt:miflora:{}/feature'.format(base_topic, flora_name.lower()), json.dumps(data))
             sleep(0.5) # some slack for the publish roundtrip and callback function
         elif reporting_mode == 'mqtt-homie':
             print_line('Publishing data to MQTT base topic "{}/{}"'.format(base_topic, flora_name.lower()))
