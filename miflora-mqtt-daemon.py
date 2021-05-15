@@ -345,6 +345,7 @@ elif reporting_mode == 'homeassistant-mqtt':
                     'model' : 'MiFlora Plant Sensor (HHCCJCY01)',
                     'sw_version': flora['firmware']
             }
+            payload['expire_after'] = '3600'
             mqtt_client.publish(discovery_topic, json.dumps(payload), 1, True)
 elif reporting_mode == 'wirenboard-mqtt':
     print_line('Announcing Mi Flora devices to MQTT broker for auto-discovery ...')
