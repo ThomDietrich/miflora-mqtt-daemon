@@ -55,9 +55,10 @@
 # Default depends on the configured reporting_method
 #base_topic = miflora                   # Default for: mqtt-json, mqtt-smarthome, homeassistant-mqtt
 #base_topic = homie                     # Default for: mqtt-homie
+#base_topic = gladys/master/device      # Default for: gladys-mqtt
 #base_topic = v1/devices/me/telemetry   # Default for: thingsboard-json
 #base_topic =                           # Default for: wirenboard-mqtt
-#base_topic = gladys/master/device
+
 # The MQTT broker authentification credentials (Default: no authentication)
 # Will also read from MQTT_USERNAME and MQTT_PASSWORD environment variables
 #username = user
