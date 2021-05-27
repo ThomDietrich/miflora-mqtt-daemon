@@ -29,6 +29,7 @@ The program can be executed in **daemon mode** to run continuously in the backgr
     * following the [Homie Convention v2.0.5](https://github.com/marvinroger/homie)
     * following the [mqtt-smarthome architecture proposal](https://github.com/mqtt-smarthome/mqtt-smarthome)
     * using the [HomeAssistant MQTT discovery format](https://home-assistant.io/docs/mqtt/discovery/)
+    * using the [Gladys MQTT proposal](https://gladysassistant.com/docs/integrations/mqtt/)
     * using the [ThingsBoard.io](https://thingsboard.io/) MQTT interface
     * following the [Wiren Board MQTT Conventions](https://github.com/contactless/homeui/blob/master/conventions.md)
 * MQTT authentication support
