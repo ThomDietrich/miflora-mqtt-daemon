@@ -17,11 +17,11 @@
 #                       (https://github.com/mqtt-smarthome/mqtt-smarthome)
 #  homeassistant-mqtt - Publish to an MQTT broker following the HomeAssistant discovery format
 #                       (https://www.home-assistant.io/docs/mqtt/discovery/)
-#  gladys-mqtt        - Publish to an MQTT broker following the Gladys MQTT proposal
+#         gladys-mqtt - Publish to an MQTT broker following the Gladys MQTT proposal
 #                       https://gladysassistant.com/docs/integrations/mqtt/
 #    thingsboard-json - Publish to the ThingsBoard MQTT broker
 #                       (https://thingsboard.io)
-#    wirenboard-mqtt -  Publish to the Wiren Board MQTT broker
+#     wirenboard-mqtt - Publish to the Wiren Board MQTT broker
 #                       (https://wirenboard.com)
 #                json - Print to stdout as json encoded strings
 #
