@@ -1,0 +1,12 @@
+  
+image: guykhmel/miflora-mqtt-daemon:latest
+manifests:
+  - image: guykhmel/miflora-mqtt-daemon:latest-amd64
+    platform:
+      architecture: amd64
+      os: linux
+  - image: guykhmel/miflora-mqtt-daemon:latest-arm32v7
+    platform:
+      architecture: arm
+      os: linux
+      variant: v7
