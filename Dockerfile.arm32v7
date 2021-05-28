@@ -12,8 +12,7 @@ COPY --from=builder qemu-arm-static /usr/bin
 
 WORKDIR /usr/src/app
 
-RUN apt-get -y update && apt-get -y upgrade \
-        && apt-get install -y bluez
+RUN apk --no-cache --update add bluez
 
 COPY requirements.txt ./
 RUN pip install --upgrade pip
