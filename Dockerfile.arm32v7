@@ -1,0 +1,25 @@
+# First build stage: get gemu for multi-arch building
+FROM alpine AS qemu
+
+#QEMU Download
+ENV QEMU_URL https://github.com/balena-io/qemu/releases/download/v4.0.0%2Bbalena2/qemu-4.0.0.balena2-arm.tar.gz
+RUN apk add curl && curl -L ${QEMU_URL} | tar zxvf - -C . --strip-components 1
+
+# New build stage: Basis-Image
+FROM arm32v7/python:3-stretch
+
+# Provide QEMU for this stage of docker build
+COPY --from=qemu qemu-arm-static /usr/bin
+
+RUN apt-get update && apt-get install -y bluez
+
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+COPY requirements.txt requirements.txt
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD [ "python", "./miflora-mqtt-daemon.py", "--config_dir", "/config" ]
