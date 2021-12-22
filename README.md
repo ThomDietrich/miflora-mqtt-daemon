@@ -16,7 +16,7 @@ The program can be executed in **daemon mode** to run continuously in the backgr
 
 ## Features
 
-* Tested with Mi Flora firmware 3.2.1
+* Tested with Mi Flora firmware 3.2.1 and 3.3.5
 * Tested with VegTrug firmware 3.2.1 (MAC prefix "80:EA:CA")
 * Tested on Raspberry Pi 3 and Raspberry Pi 0W
 * Tested on Wiren Board 5 (Debian Stretch)
