@@ -31,7 +31,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Docker meta
-        id: miflora-mqtt # you'll use this in the next step
+        id: miflora-mqtt-meta # you'll use this in the next step
         uses: docker/metadata-action@v3
         with:
           # list of Docker images to use as base name for tags
@@ -51,5 +51,5 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm/v7
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.<meta_id>.outputs.tags }}
-          labels: ${{ steps.<meta_id>.outputs.labels }}
+          tags: ${{ steps.miflora-mqtt-meta.outputs.tags }}
+          labels: ${{ steps.miflora-mqtt-meta.outputs.labels }}
