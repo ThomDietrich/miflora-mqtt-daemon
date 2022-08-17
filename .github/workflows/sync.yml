@@ -16,9 +16,6 @@ jobs:
     - name: Checkout target repo
       uses: actions/checkout@v2
       with:
-        # optional: set the branch to checkout,
-        # sync action checks out your 'target_sync_branch' anyway
-        ref:  my-branch
         # REQUIRED if your upstream repo is private (see wiki)
         persist-credentials: false
 
@@ -28,10 +25,10 @@ jobs:
       id: sync
       uses: aormsby/Fork-Sync-With-Upstream-action@v3.2
       with:
-        target_sync_branch: multiarch
+        target_sync_branch: master
         # REQUIRED 'target_repo_token' exactly like this!
         target_repo_token: ${{ secrets.GITHUB_TOKEN }}
-        upstream_sync_branch: main
+        upstream_sync_branch: master
         upstream_sync_repo: ThomDietrich/miflora-mqtt-daemon
 
         # Set test_mode true to run tests instead of the true action!!
