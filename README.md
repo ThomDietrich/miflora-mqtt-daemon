@@ -151,7 +151,7 @@ This can be done either by using the internal daemon or cron.
 A Dockerfile in the repository can be used to build a docker container from the sources with a command such as:
 
 ```shell
-docker build -t miflora-mqtt-daemon .
+docker build -t miflora-mqtt-daemon . && docker image prune -f --filter label=stage=builder
 ```
 
 Running the container in interactive mode works like this:
