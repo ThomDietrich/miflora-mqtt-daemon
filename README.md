@@ -169,6 +169,12 @@ docker run -d --name miflora-mqtt-daemon -v .:/config miflora-mqtt-daemon
 The `/config` volume can be used to provide a directory on the host which contains your `config.ini` file (e.g. the `.` in the above example could represent `/opt/miflora-mqtt-daemon`).
 You may need to tweak the network settings (e.g. `--network host`) for Docker depending on how your system is set up.
 
+It can be worth deleting any redundant images after building a new image:
+
+```shell
+docker image prune 
+```
+
 ## Integration
 
 In the "mqtt-json" reporting mode, data will be published to the MQTT broker topic "`miflora/sensorname`" (e.g. `miflora/petunia`).
