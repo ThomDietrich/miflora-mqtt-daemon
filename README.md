@@ -153,7 +153,6 @@ A Dockerfile in the repository can be used to build a docker container from the 
 ```shell
 docker build -t miflora-mqtt-daemon .
 ```
-
 Running the container in interactive mode works like this:
 
 ```shell
@@ -168,6 +167,12 @@ docker run -d --name miflora-mqtt-daemon -v .:/config miflora-mqtt-daemon
 
 The `/config` volume can be used to provide a directory on the host which contains your `config.ini` file (e.g. the `.` in the above example could represent `/opt/miflora-mqtt-daemon`).
 You may need to tweak the network settings (e.g. `--network host`) for Docker depending on how your system is set up.
+
+It can be worth running 
+```shell
+docker image prune 
+```
+after building a new image to clean up any redundant images
 
 ## Integration
 
