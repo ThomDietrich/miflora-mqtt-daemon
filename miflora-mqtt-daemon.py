@@ -24,7 +24,7 @@ project_name = 'Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon'
 project_url = 'https://github.com/ThomDietrich/miflora-mqtt-daemon'
 
 parameters = OrderedDict([
-    (MI_LIGHT, dict(name="LightIntensity", name_pretty='Sunlight Intensity', typeformat='%d', unit='lux', device_class="illuminance", state_class="measurement")),
+    (MI_LIGHT, dict(name="LightIntensity", name_pretty='Sunlight Intensity', typeformat='%d', unit='lx', device_class="illuminance", state_class="measurement")),
     (MI_TEMPERATURE, dict(name="AirTemperature", name_pretty='Air Temperature', typeformat='%.1f', unit='°C', device_class="temperature", state_class="measurement")),
     (MI_MOISTURE, dict(name="SoilMoisture", name_pretty='Soil Moisture', typeformat='%d', unit='%', device_class="humidity", state_class="measurement")),
     (MI_CONDUCTIVITY, dict(name="SoilConductivity", name_pretty='Soil Conductivity/Fertility', typeformat='%d', unit='µS/cm', state_class="measurement")),
