@@ -64,7 +64,13 @@ The following example shows the installation under Debian/Raspbian below the `/o
 
 ```shell
 sudo apt install git python3 python3-pip bluetooth bluez
+```
+In case you intent to run the service on a Raspberry Pi OS (64-bit), you need to install this packages as well to prevent the `bluepy Building wheel for bluepy (setup.py) ... error` error.
 
+```shell
+sudo apt install libglib2.0-dev
+```
+```shell
 git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git /opt/miflora-mqtt-daemon
 
 cd /opt/miflora-mqtt-daemon
