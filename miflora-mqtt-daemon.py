@@ -330,7 +330,7 @@ elif reporting_mode == 'homeassistant-mqtt':
         for [sensor, params] in parameters.items():
             discovery_topic = 'homeassistant/sensor/{}/{}/config'.format(flora_name.lower(), sensor)
             payload = OrderedDict()
-            payload['name'] = "{} {}".format(flora_name, sensor.title())
+            payload['name'] = "{}".format(sensor.title())
             payload['unique_id'] = "{}-{}".format(flora['mac'].lower().replace(":", ""), sensor)
             payload['unit_of_measurement'] = params['unit']
             if 'device_class' in params:
