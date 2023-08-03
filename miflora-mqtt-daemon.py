@@ -119,7 +119,7 @@ sleep_period = config['Daemon'].getint('period', 300)
 miflora_cache_timeout = sleep_period - 1
 
 # Check configuration
-if reporting_mode not in ['mqtt-json', 'mqtt-homie', 'json', 'mqtt-smarthome', 'homeassistant-mqtt', 'thingsboard-json', 'wirenboard-mqtt']:
+if reporting_mode not in ['mqtt-json', 'mqtt-pure', 'mqtt-homie', 'json', 'mqtt-smarthome', 'homeassistant-mqtt', 'thingsboard-json', 'wirenboard-mqtt']:
     print_line('Configuration parameter reporting_mode set to an invalid value', error=True, sd_notify=True)
     sys.exit(1)
 if not config['Sensors']:
@@ -132,7 +132,7 @@ if reporting_mode == 'wirenboard-mqtt' and base_topic:
 print_line('Configuration accepted', console=False, sd_notify=True)
 
 # MQTT connection
-if reporting_mode in ['mqtt-json', 'mqtt-smarthome', 'homeassistant-mqtt', 'thingsboard-json', 'wirenboard-mqtt']:
+if reporting_mode in ['mqtt-json', 'mqtt-pure', 'mqtt-smarthome', 'homeassistant-mqtt', 'thingsboard-json', 'wirenboard-mqtt']:
     print_line('Connecting to MQTT broker ...')
     mqtt_client = mqtt.Client()
     mqtt_client.on_connect = on_connect
@@ -231,6 +231,7 @@ if reporting_mode == 'mqtt-json':
     mqtt_client.publish('{}/$announce'.format(base_topic), json.dumps(flores_info), retain=True)
     sleep(0.5) # some slack for the publish roundtrip and callback function
     print()
+
 elif reporting_mode == 'mqtt-homie':
     mqtt_client = OrderedDict()
     print_line('Announcing Mi Flora devices to MQTT broker for auto-discovery ...')
@@ -428,6 +429,11 @@ while True:
         if reporting_mode == 'mqtt-json':
             print_line('Publishing to MQTT topic "{}/{}"'.format(base_topic, flora_name))
             mqtt_client.publish('{}/{}'.format(base_topic, flora_name), json.dumps(data))
+            sleep(0.5) # some slack for the publish roundtrip and callback function
+        elif reporting_mode == 'mqtt-pure':
+            print_line('Publishing data to MQTT base topic "{}/{}"'.format(base_topic, flora_name.lower()))
+            for [param, value] in data.items():
+                mqtt_client.publish('{}/{}/{}'.format(base_topic, flora_name.lower(), param), value, 1, True)
             sleep(0.5) # some slack for the publish roundtrip and callback function
         elif reporting_mode == 'thingsboard-json':
             print_line('Publishing to MQTT topic "{}" username "{}"'.format(base_topic, flora_name))
